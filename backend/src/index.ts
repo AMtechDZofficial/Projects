@@ -13,6 +13,9 @@ import payrollRoutes from './routes/payroll';
 import costsRoutes from './routes/costs';
 import suppliersRoutes from './routes/suppliers';
 import dashboardRoutes from './routes/dashboard';
+import machinesRoutes from './routes/machines';
+import lineBalanceRoutes from './routes/lineBalance';
+import aiRoutes from './routes/ai';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -34,6 +37,9 @@ app.use('/api/employees', employeesRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/costs', costsRoutes);
 app.use('/api/suppliers', suppliersRoutes);
+app.use('/api/machines', machinesRoutes);
+app.use('/api/line-balance', lineBalanceRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

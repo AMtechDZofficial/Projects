@@ -11,6 +11,9 @@ import Employees from './pages/Employees';
 import Payroll from './pages/Payroll';
 import Costs from './pages/Costs';
 import Forms from './pages/Forms';
+import Machines from './pages/Machines';
+import LineBalance from './pages/LineBalance';
+import AIAgent from './pages/AIAgent';
 
 function AppRoutes() {
   const { user, isLoading } = useAuth();
@@ -30,6 +33,9 @@ function AppRoutes() {
         <Route path="/payroll" element={<Payroll />} />
         <Route path="/costs" element={<Costs />} />
         <Route path="/forms" element={<Forms />} />
+        <Route path="/machines" element={<Machines />} />
+        <Route path="/line-balance" element={<LineBalance />} />
+        <Route path="/ai-agent" element={<AIAgent />} />
       </Route>
     </Routes>
   );

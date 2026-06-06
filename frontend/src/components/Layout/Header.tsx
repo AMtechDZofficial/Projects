@@ -11,7 +11,10 @@ const titles: Record<string, string> = {
   '/employees': 'Employés',
   '/payroll': 'Paie',
   '/costs': 'Coûts & Analyses',
-  '/forms': 'Formulaires & Documents'
+  '/forms': 'Formulaires & Documents',
+  '/machines': 'Parc Machines',
+  '/line-balance': 'Équilibrage de Ligne',
+  '/ai-agent': 'Agent IA Atelier'
 };
 
 export default function Header() {

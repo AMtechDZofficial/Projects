@@ -211,3 +211,64 @@ export interface DashboardStats {
   coutMinute: number;
   finishedStockCount: number;
 }
+
+export type MachineType = 'MACHINE_PLATE' | 'SURJETEUSE' | 'BOUTONNIERE' | 'MACHINE_BOUTON' | 'TABLE_COUPE' | 'FER_REPASSAGE' | 'MACHINE_CANON' | 'BRODERIE' | 'POINT_INVISIBLE' | 'PRESSE' | 'AUTRE';
+export type MachineStatus = 'DISPONIBLE' | 'EN_SERVICE' | 'EN_PANNE' | 'MAINTENANCE';
+export type ShiftType = 'MATIN' | 'APRES_MIDI' | 'JOURNEE';
+
+export interface Machine {
+  id: string;
+  code: string;
+  name: string;
+  type: MachineType;
+  brand?: string;
+  model?: string;
+  status: MachineStatus;
+  location?: string;
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface OperatorAssignment {
+  id: string;
+  orderId: string;
+  employeeId: string;
+  employee: { id: string; firstName: string; lastName: string; employeeId: string; position: string };
+  operationId: string;
+  operation: { id: string; name: string; sequence: number; machineType?: string; standardMinutes: number };
+  machineId?: string;
+  machine?: { id: string; code: string; name: string; type: MachineType };
+  targetQuantity: number;
+  actualQuantity: number;
+  shiftType: ShiftType;
+  date: string;
+  notes?: string;
+}
+
+export interface LineStation {
+  operationId: string;
+  operationName: string;
+  tmo: number;
+  requiredOperators: number;
+  machineType?: string;
+  utilization: number;
+  bottleneck: boolean;
+}
+
+export interface LineBalancingResult {
+  model: { id: string; name: string; code: string };
+  cycleTime: number;
+  targetOutput: number;
+  availableMinutes: number;
+  totalTMO: number;
+  totalOperators: number;
+  lineEfficiency: number;
+  bottleneckOperation: string;
+  stations: LineStation[];
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}

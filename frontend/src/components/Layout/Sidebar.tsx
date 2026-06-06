@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Scissors, Factory, Warehouse,
-  Users, CreditCard, Calculator, ChevronRight, FileText
+  Users, CreditCard, Calculator, ChevronRight, FileText,
+  Settings, GitBranch, Bot
 } from 'lucide-react';
 
 const nav = [
@@ -13,7 +14,10 @@ const nav = [
   { to: '/employees', icon: Users, label: 'Employés' },
   { to: '/payroll', icon: CreditCard, label: 'Paie' },
   { to: '/costs', icon: Calculator, label: 'Coûts & Analyses' },
-  { to: '/forms', icon: FileText, label: 'Formulaires' }
+  { to: '/machines', icon: Settings, label: 'Machines' },
+  { to: '/line-balance', icon: GitBranch, label: 'Équilibrage ligne' },
+  { to: '/forms', icon: FileText, label: 'Formulaires' },
+  { to: '/ai-agent', icon: Bot, label: 'Agent IA' }
 ];
 
 export default function Sidebar() {

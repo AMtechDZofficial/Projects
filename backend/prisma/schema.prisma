@@ -138,17 +138,18 @@ model ModelComponent {
 }
 
 model ModelOperation {
-  id              String              @id @default(cuid())
+  id              String               @id @default(cuid())
   modelId         String
-  model           CoutureModel        @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  model           CoutureModel         @relation(fields: [modelId], references: [id], onDelete: Cascade)
   name            String
   description     String?
   machineType     String?
-  standardMinutes Decimal             @db.Decimal(8, 2)
-  sequence        Int                 @default(0)
+  standardMinutes Decimal              @db.Decimal(8, 2)
+  sequence        Int                  @default(0)
   pieceProductions PieceProduction[]
   semiFinished    SemiFinishedStock[]
   pieceRates      PieceRate[]
+  assignments     OperatorAssignment[]
 
   @@index([modelId])
 }
@@ -156,17 +157,18 @@ model ModelOperation {
 // ─── Production ──────────────────────────────────────────────────────────────
 
 model ProductionOrder {
-  id          String      @id @default(cuid())
-  orderNumber String      @unique
+  id          String               @id @default(cuid())
+  orderNumber String               @unique
   modelId     String
-  model       CoutureModel @relation(fields: [modelId], references: [id])
+  model       CoutureModel         @relation(fields: [modelId], references: [id])
   quantity    Int
-  status      OrderStatus @default(EN_ATTENTE)
+  status      OrderStatus          @default(EN_ATTENTE)
   startDate   DateTime?
   endDate     DateTime?
   notes       String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  assignments OperatorAssignment[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
   @@index([modelId])
   @@index([status])
@@ -223,23 +225,24 @@ enum StockMovType {
 // ─── Employés ────────────────────────────────────────────────────────────────
 
 model Employee {
-  id               String            @id @default(cuid())
-  employeeId       String            @unique
+  id               String               @id @default(cuid())
+  employeeId       String               @unique
   firstName        String
   lastName         String
   position         String
   department       String?
   paymentType      PaymentType
-  hourlyRate       Decimal?          @db.Decimal(10, 2)
-  monthlyRate      Decimal?          @db.Decimal(10, 2)
+  hourlyRate       Decimal?             @db.Decimal(10, 2)
+  monthlyRate      Decimal?             @db.Decimal(10, 2)
   phone            String?
   hireDate         DateTime
-  isActive         Boolean           @default(true)
+  isActive         Boolean              @default(true)
   pieceRates       PieceRate[]
   pieceProductions PieceProduction[]
   payrolls         Payroll[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  assignments      OperatorAssignment[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
 
   @@index([paymentType])
   @@index([isActive])
@@ -315,6 +318,79 @@ enum PayrollStatus {
   BROUILLON
   VALIDE
   PAYE
+}
+
+// ─── Machines ────────────────────────────────────────────────────────────────
+
+model Machine {
+  id          String               @id @default(cuid())
+  code        String               @unique
+  name        String
+  type        MachineType
+  brand       String?
+  model       String?
+  status      MachineStatus        @default(DISPONIBLE)
+  location    String?
+  notes       String?
+  assignments OperatorAssignment[]
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+enum MachineType {
+  MACHINE_PLATE
+  SURJETEUSE
+  BOUTONNIERE
+  MACHINE_BOUTON
+  TABLE_COUPE
+  FER_REPASSAGE
+  MACHINE_CANON
+  BRODERIE
+  POINT_INVISIBLE
+  PRESSE
+  AUTRE
+}
+
+enum MachineStatus {
+  DISPONIBLE
+  EN_SERVICE
+  EN_PANNE
+  MAINTENANCE
+}
+
+// ─── Affectation Opérateurs ──────────────────────────────────────────────────
+
+model OperatorAssignment {
+  id             String          @id @default(cuid())
+  orderId        String
+  order          ProductionOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  employeeId     String
+  employee       Employee        @relation(fields: [employeeId], references: [id])
+  operationId    String
+  operation      ModelOperation  @relation(fields: [operationId], references: [id])
+  machineId      String?
+  machine        Machine?        @relation(fields: [machineId], references: [id])
+  targetQuantity Int             @default(0)
+  actualQuantity Int             @default(0)
+  shiftType      ShiftType       @default(JOURNEE)
+  date           DateTime        @default(now())
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([orderId])
+  @@index([employeeId])
+  @@index([operationId])
+}
+
+enum ShiftType {
+  MATIN
+  APRES_MIDI
+  JOURNEE
 }
 
 // ─── Configuration Atelier ───────────────────────────────────────────────────

@@ -108,4 +108,27 @@ export const dashboardApi = {
   get: () => api.get('/dashboard')
 };
 
+export const machinesApi = {
+  getAll: (params?: unknown) => api.get('/machines', { params }),
+  getOne: (id: string) => api.get(`/machines/${id}`),
+  getStats: () => api.get('/machines/stats'),
+  create: (data: unknown) => api.post('/machines', data),
+  update: (id: string, data: unknown) => api.put(`/machines/${id}`, data),
+  updateStatus: (id: string, status: string) => api.patch(`/machines/${id}/status`, { status }),
+  delete: (id: string) => api.delete(`/machines/${id}`)
+};
+
+export const lineBalanceApi = {
+  calculate: (data: unknown) => api.post('/line-balance/calculate', data),
+  getAssignments: (orderId: string) => api.get(`/line-balance/assignments/${orderId}`),
+  createAssignment: (data: unknown) => api.post('/line-balance/assignments', data),
+  updateAssignment: (id: string, data: unknown) => api.put(`/line-balance/assignments/${id}`, data),
+  deleteAssignment: (id: string) => api.delete(`/line-balance/assignments/${id}`)
+};
+
+export const aiApi = {
+  analyze: (question: string) => api.post('/ai/analyze', { question }),
+  getChatToken: () => localStorage.getItem('token') || ''
+};
+
 export default api;
