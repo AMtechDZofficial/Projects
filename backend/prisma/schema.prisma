@@ -1,0 +1,333 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Authentification ────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(MANAGER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  OPERATOR
+}
+
+// ─── Fournisseurs ────────────────────────────────────────────────────────────
+
+model Supplier {
+  id        String     @id @default(cuid())
+  code      String     @unique
+  name      String
+  contact   String?
+  phone     String?
+  email     String?
+  address   String?
+  isActive  Boolean    @default(true)
+  materials Material[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// ─── Matières Premières ──────────────────────────────────────────────────────
+
+model Material {
+  id              String             @id @default(cuid())
+  code            String             @unique
+  name            String
+  category        MaterialCategory
+  unit            String
+  unitCost        Decimal            @db.Decimal(12, 4)
+  stockQuantity   Decimal            @default(0) @db.Decimal(12, 3)
+  minimumStock    Decimal            @default(0) @db.Decimal(12, 3)
+  supplierId      String?
+  supplier        Supplier?          @relation(fields: [supplierId], references: [id])
+  movements       MaterialMovement[]
+  modelComponents ModelComponent[]
+  isActive        Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([category])
+  @@index([supplierId])
+}
+
+enum MaterialCategory {
+  TISSU
+  FIL
+  BOUTON
+  FERMETURE
+  DOUBLURE
+  ELASTIQUE
+  DENTELLE
+  BRODERIE
+  EMBALLAGE
+  AUTRE
+}
+
+model MaterialMovement {
+  id          String       @id @default(cuid())
+  materialId  String
+  material    Material     @relation(fields: [materialId], references: [id])
+  type        MovementType
+  quantity    Decimal      @db.Decimal(12, 3)
+  unitCost    Decimal      @db.Decimal(12, 4)
+  totalCost   Decimal      @db.Decimal(12, 2)
+  reference   String?
+  notes       String?
+  date        DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+
+  @@index([materialId])
+  @@index([date])
+}
+
+enum MovementType {
+  ENTREE
+  SORTIE
+  AJUSTEMENT
+}
+
+// ─── Modèles de Vêtements ────────────────────────────────────────────────────
+
+model CoutureModel {
+  id               String              @id @default(cuid())
+  code             String              @unique
+  name             String
+  category         String
+  description      String?
+  salePrice        Decimal?            @db.Decimal(12, 2)
+  isActive         Boolean             @default(true)
+  components       ModelComponent[]
+  operations       ModelOperation[]
+  productionOrders ProductionOrder[]
+  semiFinished     SemiFinishedStock[]
+  finishedStock    FinishedStock[]
+  pieceProductions PieceProduction[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@index([category])
+}
+
+model ModelComponent {
+  id         String       @id @default(cuid())
+  modelId    String
+  model      CoutureModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  materialId String
+  material   Material     @relation(fields: [materialId], references: [id])
+  quantity   Decimal      @db.Decimal(12, 4)
+  unit       String?
+  notes      String?
+
+  @@unique([modelId, materialId])
+  @@index([modelId])
+}
+
+model ModelOperation {
+  id              String              @id @default(cuid())
+  modelId         String
+  model           CoutureModel        @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  machineType     String?
+  standardMinutes Decimal             @db.Decimal(8, 2)
+  sequence        Int                 @default(0)
+  pieceProductions PieceProduction[]
+  semiFinished    SemiFinishedStock[]
+  pieceRates      PieceRate[]
+
+  @@index([modelId])
+}
+
+// ─── Production ──────────────────────────────────────────────────────────────
+
+model ProductionOrder {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  modelId     String
+  model       CoutureModel @relation(fields: [modelId], references: [id])
+  quantity    Int
+  status      OrderStatus @default(EN_ATTENTE)
+  startDate   DateTime?
+  endDate     DateTime?
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([modelId])
+  @@index([status])
+}
+
+enum OrderStatus {
+  EN_ATTENTE
+  EN_COURS
+  TERMINE
+  ANNULE
+}
+
+// ─── Stock Produits Semi-Finis (Encours) ─────────────────────────────────────
+
+model SemiFinishedStock {
+  id          String         @id @default(cuid())
+  modelId     String
+  model       CoutureModel   @relation(fields: [modelId], references: [id])
+  operationId String
+  operation   ModelOperation @relation(fields: [operationId], references: [id])
+  quantity    Decimal        @db.Decimal(10, 0)
+  date        DateTime       @default(now())
+  notes       String?
+  createdAt   DateTime       @default(now())
+
+  @@index([modelId])
+  @@index([operationId])
+}
+
+// ─── Stock Produits Finis ────────────────────────────────────────────────────
+
+model FinishedStock {
+  id             String       @id @default(cuid())
+  modelId        String
+  model          CoutureModel @relation(fields: [modelId], references: [id])
+  quantity       Decimal      @db.Decimal(10, 0)
+  productionCost Decimal?     @db.Decimal(12, 2)
+  type           StockMovType @default(ENTREE)
+  reference      String?
+  notes          String?
+  date           DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+
+  @@index([modelId])
+  @@index([date])
+}
+
+enum StockMovType {
+  ENTREE
+  SORTIE
+  AJUSTEMENT
+}
+
+// ─── Employés ────────────────────────────────────────────────────────────────
+
+model Employee {
+  id               String            @id @default(cuid())
+  employeeId       String            @unique
+  firstName        String
+  lastName         String
+  position         String
+  department       String?
+  paymentType      PaymentType
+  hourlyRate       Decimal?          @db.Decimal(10, 2)
+  monthlyRate      Decimal?          @db.Decimal(10, 2)
+  phone            String?
+  hireDate         DateTime
+  isActive         Boolean           @default(true)
+  pieceRates       PieceRate[]
+  pieceProductions PieceProduction[]
+  payrolls         Payroll[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([paymentType])
+  @@index([isActive])
+}
+
+enum PaymentType {
+  PIECE
+  CHAINE
+  HORAIRE
+  MENSUEL
+}
+
+model PieceRate {
+  id            String          @id @default(cuid())
+  employeeId    String
+  employee      Employee        @relation(fields: [employeeId], references: [id])
+  operationId   String?
+  operation     ModelOperation? @relation(fields: [operationId], references: [id])
+  operationName String
+  rate          Decimal         @db.Decimal(10, 4)
+  effectiveDate DateTime        @default(now())
+  isActive      Boolean         @default(true)
+
+  @@index([employeeId])
+}
+
+model PieceProduction {
+  id          String          @id @default(cuid())
+  employeeId  String
+  employee    Employee        @relation(fields: [employeeId], references: [id])
+  modelId     String
+  model       CoutureModel    @relation(fields: [modelId], references: [id])
+  operationId String?
+  operation   ModelOperation? @relation(fields: [operationId], references: [id])
+  quantity    Int
+  pieceRate   Decimal         @db.Decimal(10, 4)
+  totalAmount Decimal         @db.Decimal(10, 2)
+  date        DateTime        @default(now())
+  notes       String?
+  createdAt   DateTime        @default(now())
+
+  @@index([employeeId])
+  @@index([date])
+  @@index([modelId])
+}
+
+// ─── Paie ────────────────────────────────────────────────────────────────────
+
+model Payroll {
+  id            String        @id @default(cuid())
+  employeeId    String
+  employee      Employee      @relation(fields: [employeeId], references: [id])
+  periodStart   DateTime
+  periodEnd     DateTime
+  workDays      Int           @default(0)
+  hoursWorked   Decimal       @default(0) @db.Decimal(8, 2)
+  baseSalary    Decimal       @db.Decimal(12, 2)
+  pieceEarnings Decimal       @default(0) @db.Decimal(12, 2)
+  chainBonus    Decimal       @default(0) @db.Decimal(12, 2)
+  bonus         Decimal       @default(0) @db.Decimal(12, 2)
+  deductions    Decimal       @default(0) @db.Decimal(12, 2)
+  totalAmount   Decimal       @db.Decimal(12, 2)
+  status        PayrollStatus @default(BROUILLON)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  paidAt        DateTime?
+
+  @@index([employeeId])
+  @@index([periodStart, periodEnd])
+}
+
+enum PayrollStatus {
+  BROUILLON
+  VALIDE
+  PAYE
+}
+
+// ─── Configuration Atelier ───────────────────────────────────────────────────
+
+model WorkshopConfig {
+  id                  String   @id @default(cuid())
+  name                String   @default("Atelier Principal")
+  workDaysPerMonth    Int      @default(26)
+  hoursPerDay         Decimal  @default(8) @db.Decimal(4, 2)
+  overheadPercent     Decimal  @default(15) @db.Decimal(5, 2)
+  numberOfOperators   Int      @default(10)
+  targetEfficiency    Decimal  @default(80) @db.Decimal(5, 2)
+  currency            String   @default("DZD")
+  updatedAt           DateTime @updatedAt
+  createdAt           DateTime @default(now())
+}
