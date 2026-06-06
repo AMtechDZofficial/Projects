@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Factory, Play, Check, X, Clock } from 'lucide-react';
+import { Plus, Factory, Play, Check, X, Clock, Printer } from 'lucide-react';
 import { productionApi, modelsApi } from '../services/api';
 import { ProductionOrder, CoutureModel, SemiFinishedStock } from '../types';
 import Modal from '../components/ui/Modal';
 import Badge from '../components/ui/Badge';
 import { format } from 'date-fns';
+import PrintModal from '../components/print/PrintModal';
+import OrdreDefabrication from '../components/print/OrdreDefabrication';
+import FicheDeCoupe from '../components/print/FicheDeCoupe';
 
 const statusMap = {
   EN_ATTENTE: { label: 'En attente', badge: 'warning' as const },
@@ -97,6 +100,8 @@ export default function Production() {
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [showSemiForm, setShowSemiForm] = useState(false);
   const [tab, setTab] = useState<'orders' | 'wip'>('orders');
+  const [printOFId, setPrintOFId] = useState<string | null>(null);
+  const [printCoupeId, setPrintCoupeId] = useState<string | null>(null);
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['orders'],
@@ -170,6 +175,8 @@ export default function Production() {
                           {(o.status === 'EN_ATTENTE' || o.status === 'EN_COURS') && (
                             <button onClick={() => updateStatus.mutate({ id: o.id, status: 'ANNULE' })} className="p-1.5 hover:bg-red-50 rounded text-red-500" title="Annuler"><X className="w-3.5 h-3.5" /></button>
                           )}
+                          <button onClick={() => setPrintOFId(o.id)} className="p-1.5 hover:bg-purple-50 rounded text-purple-500" title="Imprimer OF"><Printer className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => setPrintCoupeId(o.id)} className="p-1.5 hover:bg-blue-50 rounded text-blue-500" title="Fiche de coupe"><Printer className="w-3.5 h-3.5" /></button>
                         </div>
                       </td>
                     </tr>
@@ -222,6 +229,12 @@ export default function Production() {
       <Modal isOpen={showSemiForm} onClose={() => setShowSemiForm(false)} title="Saisir encours de production" size="lg">
         <SemiFinishedForm onSave={d => addSemi.mutate(d)} onClose={() => setShowSemiForm(false)} />
       </Modal>
+      <PrintModal isOpen={!!printOFId} onClose={() => setPrintOFId(null)} title="Ordre de Fabrication">
+        {printOFId && <OrdreDefabrication orderId={printOFId} />}
+      </PrintModal>
+      <PrintModal isOpen={!!printCoupeId} onClose={() => setPrintCoupeId(null)} title="Fiche de Coupe">
+        {printCoupeId && <FicheDeCoupe orderId={printCoupeId} />}
+      </PrintModal>
     </div>
   );
 }

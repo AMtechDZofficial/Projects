@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Scissors, ChevronDown, ChevronRight, Trash2, Edit2, Clock, Package } from 'lucide-react';
+import { Plus, Search, Scissors, ChevronDown, ChevronRight, Trash2, Edit2, Clock, Package, Printer } from 'lucide-react';
 import { modelsApi, materialsApi } from '../services/api';
 import { CoutureModel, Material } from '../types';
 import Modal from '../components/ui/Modal';
 import Badge from '../components/ui/Badge';
+import PrintModal from '../components/print/PrintModal';
+import FicheTechniqueModele from '../components/print/FicheTechniqueModele';
 
 function ModelForm({ model, onSave, onClose }: { model?: CoutureModel; onSave: (data: unknown) => void; onClose: () => void }) {
   const [form, setForm] = useState({
@@ -199,6 +201,7 @@ export default function Models() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<CoutureModel | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [printModelId, setPrintModelId] = useState<string | null>(null);
 
   const { data: models = [], isLoading } = useQuery({
     queryKey: ['models', search],
@@ -263,6 +266,9 @@ export default function Models() {
                       <p className="text-xs text-gray-400">prix vente</p>
                     </div>
                   )}
+                  <button onClick={e => { e.stopPropagation(); setPrintModelId(m.id); }} className="p-2 hover:bg-purple-50 rounded-lg text-purple-500" title="Fiche Technique">
+                    <Printer className="w-4 h-4" />
+                  </button>
                   <button onClick={e => { e.stopPropagation(); setEditItem(m); }} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500">
                     <Edit2 className="w-4 h-4" />
                   </button>
@@ -285,6 +291,9 @@ export default function Models() {
       <Modal isOpen={!!editItem} onClose={() => setEditItem(null)} title="Modifier le modèle">
         {editItem && <ModelForm model={editItem} onSave={d => updateMut.mutate({ id: editItem.id, data: d })} onClose={() => setEditItem(null)} />}
       </Modal>
+      <PrintModal isOpen={!!printModelId} onClose={() => setPrintModelId(null)} title="Fiche Technique Modèle">
+        {printModelId && <FicheTechniqueModele modelId={printModelId} />}
+      </PrintModal>
     </div>
   );
 }

@@ -41,3 +41,209 @@
     @apply py-3 px-4 text-sm text-gray-700;
   }
 }
+
+/* ─── Styles d'impression ──────────────────────────────────────────────────── */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10pt !important;
+    color: #000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-page-break {
+    page-break-after: always;
+  }
+}
+
+/* ─── Composants formulaires imprimables ───────────────────────────────────── */
+
+.form-print-wrap {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #111;
+  background: white;
+  width: 100%;
+  max-width: 190mm;
+  margin: 0 auto;
+}
+
+.form-print-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+}
+
+.form-print-wrap th {
+  background: #1a1a2e !important;
+  color: white !important;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px 6px;
+  border: 1px solid #333;
+  font-size: 9pt;
+}
+
+.form-print-wrap td {
+  border: 1px solid #555;
+  padding: 4px 6px;
+  vertical-align: middle;
+  min-height: 18px;
+}
+
+.form-print-wrap .row-alt {
+  background: #f5f5f5;
+}
+
+.form-print-wrap .section-title {
+  background: #374151;
+  color: white;
+  font-weight: bold;
+  font-size: 9pt;
+  padding: 4px 8px;
+  margin: 8px 0 0 0;
+  letter-spacing: 0.05em;
+}
+
+.form-print-wrap .info-box {
+  border: 1.5px solid #333;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+
+.form-print-wrap .info-grid {
+  display: grid;
+  gap: 0;
+}
+
+.form-print-wrap .info-cell {
+  border: 1px solid #555;
+  padding: 4px 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.form-print-wrap .info-label {
+  font-weight: bold;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+.form-print-wrap .info-value {
+  border-bottom: 1px dotted #888;
+  flex: 1;
+  min-width: 60px;
+}
+
+.form-print-wrap .sign-block {
+  border: 1px solid #555;
+  padding: 8px;
+  min-height: 50px;
+  text-align: center;
+}
+
+.form-print-wrap .sign-line {
+  border-bottom: 1px solid #333;
+  margin-top: 30px;
+  margin-bottom: 4px;
+}
+
+.form-print-wrap .doc-header {
+  border: 2px solid #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.form-print-wrap .doc-header-title {
+  background: #1a1a2e;
+  color: white;
+  font-size: 13pt;
+  font-weight: bold;
+  text-align: center;
+  padding: 8px;
+  letter-spacing: 0.1em;
+}
+
+.form-print-wrap .doc-header-sub {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border-top: 2px solid #1a1a2e;
+}
+
+.form-print-wrap .doc-header-atelier {
+  padding: 6px 10px;
+  border-right: 1px solid #1a1a2e;
+}
+
+.form-print-wrap .doc-header-ref {
+  padding: 6px 12px;
+  text-align: right;
+  min-width: 140px;
+}
+
+.form-print-wrap .sketch-zone {
+  border: 2px dashed #aaa;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-style: italic;
+  font-size: 9pt;
+  margin: 4px 0;
+}
+
+.form-print-wrap .cost-summary {
+  border: 1.5px solid #1a1a2e;
+  padding: 8px 12px;
+}
+
+.form-print-wrap .cost-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  border-bottom: 1px dotted #ccc;
+}
+
+.form-print-wrap .cost-row-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-weight: bold;
+  font-size: 11pt;
+  border-top: 2px solid #333;
+  margin-top: 4px;
+}
+
+.form-print-wrap .checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.form-print-wrap .checkbox-box {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #333;
+  display: inline-block;
+  flex-shrink: 0;
+}

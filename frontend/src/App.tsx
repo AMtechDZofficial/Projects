@@ -10,6 +10,7 @@ import Stock from './pages/Stock';
 import Employees from './pages/Employees';
 import Payroll from './pages/Payroll';
 import Costs from './pages/Costs';
+import Forms from './pages/Forms';
 
 function AppRoutes() {
   const { user, isLoading } = useAuth();
@@ -28,6 +29,7 @@ function AppRoutes() {
         <Route path="/employees" element={<Employees />} />
         <Route path="/payroll" element={<Payroll />} />
         <Route path="/costs" element={<Costs />} />
+        <Route path="/forms" element={<Forms />} />
       </Route>
     </Routes>
   );

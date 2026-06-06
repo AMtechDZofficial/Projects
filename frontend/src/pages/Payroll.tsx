@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, CreditCard, CheckCircle, DollarSign, Calculator } from 'lucide-react';
+import { Plus, CreditCard, CheckCircle, DollarSign, Calculator, Printer } from 'lucide-react';
 import { payrollApi, employeesApi } from '../services/api';
 import type { Payroll, Employee } from '../types';
 import Modal from '../components/ui/Modal';
 import Badge from '../components/ui/Badge';
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
+import PrintModal from '../components/print/PrintModal';
+import BulletinDePaie from '../components/print/BulletinDePaie';
 import { fr } from 'date-fns/locale';
 
 const statusBadge = (s: Payroll['status']) => {
@@ -117,6 +119,7 @@ export default function Payroll() {
   const qc = useQueryClient();
   const [showCalc, setShowCalc] = useState(false);
   const [calculated, setCalculated] = useState<Partial<Payroll> | null>(null);
+  const [printPayroll, setPrintPayroll] = useState<Payroll | null>(null);
 
   const { data: payrollData, isLoading } = useQuery({
     queryKey: ['payrolls'],
@@ -197,6 +200,7 @@ export default function Payroll() {
                         {p.status === 'VALIDE' && (
                           <button onClick={() => payMut.mutate(p.id)} className="p-1.5 hover:bg-green-50 rounded text-green-500" title="Marquer payé"><DollarSign className="w-3.5 h-3.5" /></button>
                         )}
+                        <button onClick={() => setPrintPayroll(p)} className="p-1.5 hover:bg-purple-50 rounded text-purple-500" title="Imprimer bulletin"><Printer className="w-3.5 h-3.5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -214,6 +218,9 @@ export default function Payroll() {
       <Modal isOpen={!!calculated} onClose={() => setCalculated(null)} title="Aperçu bulletin de paie" size="lg">
         {calculated && <PayrollPreview calculated={calculated} onConfirm={d => createMut.mutate(d)} onClose={() => setCalculated(null)} />}
       </Modal>
+      <PrintModal isOpen={!!printPayroll} onClose={() => setPrintPayroll(null)} title="Bulletin de Paie">
+        {printPayroll && <BulletinDePaie payroll={printPayroll} />}
+      </PrintModal>
     </div>
   );
 }
