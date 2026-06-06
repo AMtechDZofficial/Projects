@@ -14,6 +14,13 @@ import Forms from './pages/Forms';
 import Machines from './pages/Machines';
 import LineBalance from './pages/LineBalance';
 import AIAgent from './pages/AIAgent';
+import Clients from './pages/Clients';
+import ClientOrders from './pages/ClientOrders';
+import Deliveries from './pages/Deliveries';
+import Invoices from './pages/Invoices';
+import Attendance from './pages/Attendance';
+import Planning from './pages/Planning';
+import Quality from './pages/Quality';
 
 function AppRoutes() {
   const { user, isLoading } = useAuth();
@@ -25,16 +32,23 @@ function AppRoutes() {
       <Route element={<Layout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/commandes" element={<ClientOrders />} />
+        <Route path="/livraisons" element={<Deliveries />} />
+        <Route path="/factures" element={<Invoices />} />
         <Route path="/materials" element={<Materials />} />
         <Route path="/models" element={<Models />} />
         <Route path="/production" element={<Production />} />
+        <Route path="/planning" element={<Planning />} />
+        <Route path="/qualite" element={<Quality />} />
         <Route path="/stock" element={<Stock />} />
         <Route path="/employees" element={<Employees />} />
+        <Route path="/presences" element={<Attendance />} />
         <Route path="/payroll" element={<Payroll />} />
         <Route path="/costs" element={<Costs />} />
-        <Route path="/forms" element={<Forms />} />
         <Route path="/machines" element={<Machines />} />
         <Route path="/line-balance" element={<LineBalance />} />
+        <Route path="/forms" element={<Forms />} />
         <Route path="/ai-agent" element={<AIAgent />} />
       </Route>
     </Routes>

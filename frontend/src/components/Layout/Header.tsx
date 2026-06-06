@@ -4,11 +4,18 @@ import { useLocation } from 'react-router-dom';
 
 const titles: Record<string, string> = {
   '/dashboard': 'Tableau de bord',
+  '/clients': 'Clients',
+  '/commandes': 'Commandes Clients',
+  '/livraisons': 'Bons de Livraison',
+  '/factures': 'Facturation',
   '/materials': 'Matières Premières',
   '/models': 'Modèles de Vêtements',
   '/production': 'Production',
+  '/planning': 'Planning de Production',
+  '/qualite': 'Contrôle Qualité',
   '/stock': 'Gestion du Stock',
   '/employees': 'Employés',
+  '/presences': 'Pointage & Présences',
   '/payroll': 'Paie',
   '/costs': 'Coûts & Analyses',
   '/forms': 'Formulaires & Documents',

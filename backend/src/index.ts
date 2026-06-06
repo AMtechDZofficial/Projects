@@ -16,6 +16,13 @@ import dashboardRoutes from './routes/dashboard';
 import machinesRoutes from './routes/machines';
 import lineBalanceRoutes from './routes/lineBalance';
 import aiRoutes from './routes/ai';
+import clientsRoutes from './routes/clients';
+import clientOrdersRoutes from './routes/clientOrders';
+import deliveriesRoutes from './routes/deliveries';
+import invoicesRoutes from './routes/invoices';
+import attendanceRoutes from './routes/attendance';
+import planningRoutes from './routes/planning';
+import qualityRoutes from './routes/quality';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -40,6 +47,13 @@ app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/machines', machinesRoutes);
 app.use('/api/line-balance', lineBalanceRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/clients', clientsRoutes);
+app.use('/api/client-orders', clientOrdersRoutes);
+app.use('/api/deliveries', deliveriesRoutes);
+app.use('/api/invoices', invoicesRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/planning', planningRoutes);
+app.use('/api/quality', qualityRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

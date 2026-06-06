@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
+import { getOrders, getOrder, createOrder, updateOrder, updateOrderStatus, getOrderSummary } from '../controllers/clientOrdersController';
+const router = Router();
+router.use(authenticate);
+router.get('/summary', getOrderSummary);
+router.get('/', getOrders);
+router.get('/:id', getOrder);
+router.post('/', createOrder);
+router.put('/:id', updateOrder);
+router.patch('/:id/status', updateOrderStatus);
+export default router;

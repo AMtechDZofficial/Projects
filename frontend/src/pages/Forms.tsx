@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   FileText, Scissors, Factory, CreditCard,
-  Package, Users, Printer, ChevronRight, Download
+  Package, Users, Printer, ChevronRight, Download, Truck, Receipt
 } from 'lucide-react';
 import PrintModal from '../components/print/PrintModal';
 import FicheTechniqueModele from '../components/print/FicheTechniqueModele';
@@ -11,8 +11,10 @@ import OrdreDefabrication from '../components/print/OrdreDefabrication';
 import BulletinDePaie from '../components/print/BulletinDePaie';
 import BonMouvement from '../components/print/BonMouvement';
 import FicheOperateur from '../components/print/FicheOperateur';
-import { modelsApi, productionApi, payrollApi, employeesApi } from '../services/api';
-import { CoutureModel, ProductionOrder, Payroll, Employee } from '../types';
+import BonDeLivraison from '../components/print/BonDeLivraison';
+import FactureClient from '../components/print/FactureClient';
+import { modelsApi, productionApi, payrollApi, employeesApi, deliveriesApi, invoicesApi } from '../services/api';
+import { CoutureModel, ProductionOrder, Payroll, Employee, Delivery, Invoice } from '../types';
 import { format } from 'date-fns';
 
 type PrintState =
@@ -23,6 +25,8 @@ type PrintState =
   | { type: 'bon-entree' }
   | { type: 'bon-sortie' }
   | { type: 'fiche-operateur'; employeeId: string }
+  | { type: 'bon-livraison'; deliveryId: string }
+  | { type: 'facture-client'; invoiceId: string }
   | null;
 
 const FORM_TYPES = [
@@ -88,6 +92,24 @@ const FORM_TYPES = [
     color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-400',
     iconColor: 'text-indigo-600',
     badge: 'Employés'
+  },
+  {
+    id: 'bon-livraison',
+    title: 'Bon de Livraison',
+    description: 'BL client avec articles livrés, répartition tailles, transporteur et bloc signature',
+    icon: Truck,
+    color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-400',
+    iconColor: 'text-cyan-600',
+    badge: 'Commercial'
+  },
+  {
+    id: 'facture-client',
+    title: 'Facture Client',
+    description: 'Facture officielle avec TVA 19%, timbre fiscal, conditions paiement et mentions légales',
+    icon: Receipt,
+    color: 'bg-teal-50 border-teal-200 hover:border-teal-400',
+    iconColor: 'text-teal-600',
+    badge: 'Commercial'
   }
 ];
 
@@ -209,6 +231,58 @@ function EmployeeSelector({ onSelect }: { onSelect: (id: string) => void }) {
   );
 }
 
+function DeliverySelector({ onSelect }: { onSelect: (id: string) => void }) {
+  const { data: deliveries = [] } = useQuery<Delivery[]>({
+    queryKey: ['deliveries'],
+    queryFn: () => deliveriesApi.getAll().then(r => r.data)
+  });
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-600">Choisir le bon de livraison :</p>
+      <div className="max-h-64 overflow-y-auto space-y-1">
+        {deliveries.map(d => (
+          <button key={d.id} onClick={() => onSelect(d.id)}
+            className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:border-primary-400 hover:bg-primary-50 transition-colors flex items-center justify-between">
+            <div>
+              <span className="font-mono font-semibold text-sm text-gray-700 mr-3">{d.deliveryNumber}</span>
+              <span className="text-sm text-gray-600">{d.order.client.name}</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </button>
+        ))}
+        {deliveries.length === 0 && <p className="text-center text-gray-400 py-6">Aucun BL disponible</p>}
+      </div>
+    </div>
+  );
+}
+
+function InvoiceSelector({ onSelect }: { onSelect: (id: string) => void }) {
+  const { data: invoices = [] } = useQuery<Invoice[]>({
+    queryKey: ['invoices'],
+    queryFn: () => invoicesApi.getAll().then(r => r.data)
+  });
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-600">Choisir la facture :</p>
+      <div className="max-h-64 overflow-y-auto space-y-1">
+        {invoices.map(inv => (
+          <button key={inv.id} onClick={() => onSelect(inv.id)}
+            className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:border-primary-400 hover:bg-primary-50 transition-colors flex items-center justify-between">
+            <div>
+              <span className="font-mono font-semibold text-sm text-gray-700 mr-3">{inv.invoiceNumber}</span>
+              <span className="text-sm text-gray-600">{inv.client.name}</span>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-semibold text-primary-600">{Number(inv.totalAmount).toLocaleString('fr-DZ')} DZD</span>
+            </div>
+          </button>
+        ))}
+        {invoices.length === 0 && <p className="text-center text-gray-400 py-6">Aucune facture disponible</p>}
+      </div>
+    </div>
+  );
+}
+
 // ─── Page principale ──────────────────────────────────────────────────────────
 
 export default function Forms() {
@@ -229,6 +303,8 @@ export default function Forms() {
       case 'ordre-fab': return <OrderSelector onSelect={id => { setPrintState({ type: 'ordre-fab', orderId: id }); setSelectorType(null); }} />;
       case 'bulletin': return <PayrollSelector onSelect={p => { setPrintState({ type: 'bulletin', payroll: p }); setSelectorType(null); }} />;
       case 'fiche-operateur': return <EmployeeSelector onSelect={id => { setPrintState({ type: 'fiche-operateur', employeeId: id }); setSelectorType(null); }} />;
+      case 'bon-livraison': return <DeliverySelector onSelect={id => { setPrintState({ type: 'bon-livraison', deliveryId: id }); setSelectorType(null); }} />;
+      case 'facture-client': return <InvoiceSelector onSelect={id => { setPrintState({ type: 'facture-client', invoiceId: id }); setSelectorType(null); }} />;
       default: return null;
     }
   };
@@ -242,7 +318,9 @@ export default function Forms() {
       'bulletin': 'Bulletin de Paie',
       'bon-entree': 'Bon de Réception Matières',
       'bon-sortie': 'Bon de Sortie Matières',
-      'fiche-operateur': 'Fiche Opérateur'
+      'fiche-operateur': 'Fiche Opérateur',
+      'bon-livraison': 'Bon de Livraison',
+      'facture-client': 'Facture Client'
     };
     return titles[printState.type] || '';
   };
@@ -257,6 +335,8 @@ export default function Forms() {
       case 'bon-entree': return <BonMouvement type="ENTREE" />;
       case 'bon-sortie': return <BonMouvement type="SORTIE" />;
       case 'fiche-operateur': return <FicheOperateur employeeId={printState.employeeId} />;
+      case 'bon-livraison': return <BonDeLivraison deliveryId={printState.deliveryId} />;
+      case 'facture-client': return <FactureClient invoiceId={printState.invoiceId} />;
     }
   };
 

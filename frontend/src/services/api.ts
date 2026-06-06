@@ -131,4 +131,60 @@ export const aiApi = {
   getChatToken: () => localStorage.getItem('token') || ''
 };
 
+export const clientsApi = {
+  getAll: (params?: unknown) => api.get('/clients', { params }),
+  getOne: (id: string) => api.get(`/clients/${id}`),
+  getStats: () => api.get('/clients/stats'),
+  create: (data: unknown) => api.post('/clients', data),
+  update: (id: string, data: unknown) => api.put(`/clients/${id}`, data),
+  delete: (id: string) => api.delete(`/clients/${id}`)
+};
+
+export const clientOrdersApi = {
+  getAll: (params?: unknown) => api.get('/client-orders', { params }),
+  getOne: (id: string) => api.get(`/client-orders/${id}`),
+  getSummary: () => api.get('/client-orders/summary'),
+  create: (data: unknown) => api.post('/client-orders', data),
+  update: (id: string, data: unknown) => api.put(`/client-orders/${id}`, data),
+  updateStatus: (id: string, status: string) => api.patch(`/client-orders/${id}/status`, { status })
+};
+
+export const deliveriesApi = {
+  getAll: (params?: unknown) => api.get('/deliveries', { params }),
+  getOne: (id: string) => api.get(`/deliveries/${id}`),
+  create: (data: unknown) => api.post('/deliveries', data),
+  sign: (id: string) => api.patch(`/deliveries/${id}/sign`),
+  updateStatus: (id: string, status: string) => api.patch(`/deliveries/${id}/status`, { status })
+};
+
+export const invoicesApi = {
+  getAll: (params?: unknown) => api.get('/invoices', { params }),
+  getOne: (id: string) => api.get(`/invoices/${id}`),
+  getSummary: () => api.get('/invoices/summary'),
+  create: (data: unknown) => api.post('/invoices', data),
+  addPayment: (id: string, data: unknown) => api.post(`/invoices/${id}/payments`, data)
+};
+
+export const attendanceApi = {
+  getAll: (params?: unknown) => api.get('/attendance', { params }),
+  getSummary: () => api.get('/attendance/summary'),
+  upsert: (data: unknown) => api.post('/attendance', data),
+  bulk: (data: unknown) => api.post('/attendance/bulk', data)
+};
+
+export const planningApi = {
+  getSchedule: () => api.get('/planning'),
+  getCapacity: () => api.get('/planning/capacity'),
+  schedule: (orderId: string, data: unknown) => api.post('/planning/schedule', { orderId, ...(data as object) }),
+  update: (id: string, data: unknown) => api.put(`/planning/${id}`, data)
+};
+
+export const qualityApi = {
+  getDefectTypes: () => api.get('/quality/defect-types'),
+  createDefectType: (data: unknown) => api.post('/quality/defect-types', data),
+  getChecks: (params?: unknown) => api.get('/quality/checks', { params }),
+  createCheck: (data: unknown) => api.post('/quality/checks', data),
+  getStats: () => api.get('/quality/stats')
+};
+
 export default api;

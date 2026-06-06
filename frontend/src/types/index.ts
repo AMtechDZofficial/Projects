@@ -272,3 +272,194 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
+
+// ─── Commercial ───────────────────────────────────────────────────────────────
+
+export interface Client {
+  id: string;
+  code: string;
+  name: string;
+  contact?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  rc?: string;
+  nif?: string;
+  paymentTerms: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export type ClientOrderStatus = 'DEVIS' | 'CONFIRMEE' | 'EN_PRODUCTION' | 'PARTIELLEMENT_LIVREE' | 'LIVREE' | 'FACTUREE' | 'PAYEE' | 'ANNULEE';
+
+export interface ClientOrderLine {
+  id: string;
+  orderId: string;
+  modelId: string;
+  model: { name: string; code: string };
+  colorRef?: string;
+  sizeBreakdown: Record<string, number>;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface ClientOrder {
+  id: string;
+  orderNumber: string;
+  clientId: string;
+  client: { name: string; code: string; city?: string };
+  status: ClientOrderStatus;
+  orderDate: string;
+  deliveryDate: string;
+  totalAmount: number;
+  depositAmount: number;
+  notes?: string;
+  lines: ClientOrderLine[];
+  _count?: { deliveries: number };
+}
+
+export type DeliveryStatus = 'EN_PREPARATION' | 'LIVRE' | 'SIGNE' | 'RETOUR_PARTIEL';
+
+export interface DeliveryLine {
+  id: string;
+  deliveryId: string;
+  modelId: string;
+  model: { name: string; code: string };
+  colorRef?: string;
+  sizeBreakdown: Record<string, number>;
+  quantity: number;
+}
+
+export interface Delivery {
+  id: string;
+  deliveryNumber: string;
+  orderId: string;
+  order: { id: string; orderNumber: string; client: { name: string; code: string; address?: string; city?: string; phone?: string; rc?: string; nif?: string } };
+  deliveryDate: string;
+  status: DeliveryStatus;
+  carrierName?: string;
+  trackingNumber?: string;
+  signedAt?: string;
+  notes?: string;
+  lines: DeliveryLine[];
+  invoice?: { id: string; invoiceNumber: string; status: string };
+}
+
+export type InvoiceStatus = 'BROUILLON' | 'EMISE' | 'PARTIELLEMENT_PAYEE' | 'PAYEE' | 'ANNULEE';
+export type PaymentMethod = 'VIREMENT' | 'CHEQUE' | 'ESPECES' | 'TRAITE' | 'AUTRE';
+
+export interface InvoicePayment {
+  id: string;
+  invoiceId: string;
+  amount: number;
+  paymentDate: string;
+  method: PaymentMethod;
+  reference?: string;
+  notes?: string;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  deliveryId: string;
+  clientId: string;
+  client: { name: string; code: string; address?: string; city?: string; phone?: string; email?: string; rc?: string; nif?: string; paymentTerms?: number };
+  delivery: { deliveryNumber: string; deliveryDate: string; lines?: DeliveryLine[] };
+  invoiceDate: string;
+  dueDate: string;
+  subtotal: number;
+  tvaRate: number;
+  tvaAmount: number;
+  timbre: number;
+  totalAmount: number;
+  amountPaid: number;
+  status: InvoiceStatus;
+  notes?: string;
+  payments: InvoicePayment[];
+}
+
+// ─── Présences ────────────────────────────────────────────────────────────────
+
+export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'CONGE' | 'MALADIE' | 'REPOS' | 'MISSION';
+
+export interface Attendance {
+  id: string;
+  employeeId: string;
+  employee: { id: string; firstName: string; lastName: string; employeeId: string; position: string };
+  date: string;
+  status: AttendanceStatus;
+  arrivedAt?: string;
+  leftAt?: string;
+  hoursWorked?: number;
+  notes?: string;
+}
+
+// ─── Planification ────────────────────────────────────────────────────────────
+
+export interface ProductionSchedule {
+  id: string;
+  orderId: string;
+  plannedStart: string;
+  plannedEnd: string;
+  estimatedDays: number;
+  actualStart?: string;
+  actualEnd?: string;
+  priority: number;
+}
+
+export interface OrderCapacityItem {
+  id: string;
+  orderNumber: string;
+  modelName: string;
+  quantity: number;
+  status: string;
+  totalMinutes: number;
+  estimatedDays: number;
+  plannedStart?: string;
+  plannedEnd?: string;
+  clientName?: string;
+  deliveryDate?: string;
+}
+
+// ─── Qualité ──────────────────────────────────────────────────────────────────
+
+export type DefectSeverity = 'MINEUR' | 'MAJEUR' | 'CRITIQUE';
+export type CheckType = 'EN_COURS' | 'FINAL';
+export type QCStatus = 'EN_ATTENTE' | 'VALIDE' | 'BLOQUE';
+
+export interface DefectType {
+  id: string;
+  code: string;
+  name: string;
+  severity: DefectSeverity;
+  description?: string;
+  isActive: boolean;
+}
+
+export interface QualityDefect {
+  id: string;
+  defectTypeId: string;
+  defectType: { name: string; severity: DefectSeverity };
+  quantity: number;
+  notes?: string;
+}
+
+export interface QualityCheck {
+  id: string;
+  orderId: string;
+  order: { id: string; orderNumber: string; model: { name: string; code: string } };
+  operationId?: string;
+  operation?: { name: string; sequence: number };
+  checkType: CheckType;
+  checkDate: string;
+  quantityChecked: number;
+  quantityPassed: number;
+  quantityRework: number;
+  quantityRejected: number;
+  firstPassYield: number;
+  status: QCStatus;
+  notes?: string;
+  defects: QualityDefect[];
+}

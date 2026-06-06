@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
+import { getSchedule, calculateAndSchedule, getCapacityAnalysis, updateSchedulePriority } from '../controllers/planningController';
+const router = Router();
+router.use(authenticate);
+router.get('/capacity', getCapacityAnalysis);
+router.get('/', getSchedule);
+router.post('/schedule', calculateAndSchedule);
+router.put('/:id', updateSchedulePriority);
+export default router;
