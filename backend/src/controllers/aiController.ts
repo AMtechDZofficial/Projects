@@ -25,6 +25,16 @@ export const chatStream = async (req: AuthRequest, res: Response): Promise<void>
     res.status(400).json({ message: 'Messages requis' });
     return;
   }
+  if (messages.length > 50) {
+    res.status(400).json({ message: 'Trop de messages (max 50)' });
+    return;
+  }
+  const ALLOWED_ROLES = new Set(['user', 'assistant']);
+  for (const m of messages) {
+    if (!m || typeof m !== 'object') { res.status(400).json({ message: 'Message invalide' }); return; }
+    if (!ALLOWED_ROLES.has(m.role)) { res.status(400).json({ message: 'Rôle de message invalide' }); return; }
+    if (typeof m.content !== 'string' || m.content.length > 8000) { res.status(400).json({ message: 'Contenu de message invalide ou trop long' }); return; }
+  }
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -55,8 +65,8 @@ export const chatStream = async (req: AuthRequest, res: Response): Promise<void>
     res.write('data: [DONE]\n\n');
     res.end();
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Erreur IA';
-    res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
+    console.error('[AI] chatStream error:', err instanceof Error ? err.message : err);
+    res.write(`data: ${JSON.stringify({ error: 'Erreur du service IA' })}\n\n`);
     res.end();
   }
 };
@@ -84,8 +94,7 @@ export const analyzeWorkshop = async (req: AuthRequest, res: Response): Promise<
     });
 
     res.json({
-      answer: response.content[0].type === 'text' ? response.content[0].text : '',
-      usage: response.usage
+      answer: response.content[0].type === 'text' ? response.content[0].text : ''
     });
   } catch {
     res.status(500).json({ message: 'Erreur analyse IA' });

@@ -66,7 +66,7 @@ function QCForm({ onSave, onClose }: { onSave: (d: unknown) => void; onClose: ()
 
   const [form, setForm] = useState({
     orderId: '',
-    checkType: 'INTERMEDIAIRE',
+    checkType: 'EN_COURS',
     checkDate: format(new Date(), 'yyyy-MM-dd'),
     quantityChecked: 0,
     quantityPassed: 0,
@@ -92,7 +92,7 @@ function QCForm({ onSave, onClose }: { onSave: (d: unknown) => void; onClose: ()
         <div>
           <label className="label">Type de contrôle</label>
           <select className="input" value={form.checkType} onChange={e => setForm(f => ({ ...f, checkType: e.target.value }))}>
-            <option value="INTERMEDIAIRE">Intermédiaire</option>
+            <option value="EN_COURS">En cours</option>
             <option value="FINAL">Final</option>
           </select>
         </div>

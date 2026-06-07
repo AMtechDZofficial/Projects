@@ -88,7 +88,7 @@ function DeliveryForm({ onSave, onClose }: { onSave: (d: unknown) => void; onClo
             <div>
               <label className="label text-xs">Qtés par taille</label>
               <div className="flex flex-wrap gap-2">
-                {SIZES.slice(0, 9).map(size => (
+                {SIZES.map(size => (
                   <div key={size} className="flex flex-col items-center gap-0.5">
                     <label className="text-xs text-gray-400">{size}</label>
                     <input type="number" min="0" className="input text-center text-xs w-12 py-1 px-1"

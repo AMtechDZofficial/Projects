@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { login, register, me, updateConfig } from '../controllers/authController';
-import { authenticate } from '../middleware/auth';
+import { authenticate, requireRole } from '../middleware/auth';
 
 const router = Router();
 
 router.post('/login', login);
-router.post('/register', register);
+// Registration requires an existing admin — no unauthenticated self-signup
+router.post('/register', authenticate, requireRole('ADMIN'), register);
 router.get('/me', authenticate, me);
-router.put('/config', authenticate, updateConfig);
+// Workshop config is admin-only
+router.put('/config', authenticate, requireRole('ADMIN'), updateConfig);
 
 export default router;

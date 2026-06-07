@@ -437,7 +437,7 @@ model ClientOrder {
   id               String            @id @default(cuid())
   orderNumber      String            @unique
   clientId         String
-  client           Client            @relation(fields: [clientId], references: [id])
+  client           Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
   status           ClientOrderStatus @default(DEVIS)
   orderDate        DateTime          @default(now())
   deliveryDate     DateTime
@@ -535,7 +535,7 @@ model Invoice {
   deliveryId    String        @unique
   delivery      Delivery      @relation(fields: [deliveryId], references: [id])
   clientId      String
-  client        Client        @relation(fields: [clientId], references: [id])
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
   invoiceDate   DateTime      @default(now())
   dueDate       DateTime
   subtotal      Decimal       @db.Decimal(12, 2)
@@ -558,7 +558,7 @@ model Invoice {
 model Payment {
   id          String        @id @default(cuid())
   invoiceId   String
-  invoice     Invoice       @relation(fields: [invoiceId], references: [id])
+  invoice     Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
   amount      Decimal       @db.Decimal(12, 2)
   paymentDate DateTime      @default(now())
   method      PaymentMethod

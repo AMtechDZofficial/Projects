@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, requireRole } from '../middleware/auth';
 import {
   getMachines, getMachine, createMachine, updateMachine,
   updateMachineStatus, deleteMachine, getMachineStats
@@ -11,9 +11,9 @@ router.use(authenticate);
 router.get('/stats', getMachineStats);
 router.get('/', getMachines);
 router.get('/:id', getMachine);
-router.post('/', createMachine);
-router.put('/:id', updateMachine);
-router.patch('/:id/status', updateMachineStatus);
-router.delete('/:id', deleteMachine);
+router.post('/', requireRole('ADMIN', 'MANAGER'), createMachine);
+router.put('/:id', requireRole('ADMIN', 'MANAGER'), updateMachine);
+router.patch('/:id/status', requireRole('ADMIN', 'MANAGER'), updateMachineStatus);
+router.delete('/:id', requireRole('ADMIN'), deleteMachine);
 
 export default router;

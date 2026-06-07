@@ -2,10 +2,17 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import prisma from '../config/database';
 
-function generateInvoiceNumber(): string {
+async function generateInvoiceNumber(tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]): Promise<string> {
   const year = new Date().getFullYear();
-  const rand = Math.floor(Math.random() * 9000) + 1000;
-  return `FAC-${year}-${rand}`;
+  const count = await tx.invoice.count({
+    where: { invoiceDate: { gte: new Date(`${year}-01-01`) } }
+  });
+  return `FAC-${year}-${String(count + 1).padStart(5, '0')}`;
+}
+
+// Round to 2 decimal places to avoid IEEE-754 artifacts in financial math
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
 }
 
 export const getInvoices = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -45,56 +52,161 @@ export const getInvoice = async (req: AuthRequest, res: Response): Promise<void>
 export const createInvoice = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { deliveryId, tvaRate = 19, timbre = 0, dueDate, notes } = req.body;
+
+    // Validate financial fields
+    const parsedTvaRate = Number(tvaRate);
+    const parsedTimbre = Number(timbre);
+    if (!Number.isFinite(parsedTvaRate) || parsedTvaRate < 0 || parsedTvaRate > 100) {
+      res.status(400).json({ message: 'TVA doit être entre 0 et 100' });
+      return;
+    }
+    if (!Number.isFinite(parsedTimbre) || parsedTimbre < 0) {
+      res.status(400).json({ message: 'Timbre fiscal invalide' });
+      return;
+    }
+
     const delivery = await prisma.delivery.findUnique({
       where: { id: deliveryId },
-      include: { order: { include: { client: true, lines: true } } }
+      include: {
+        order: {
+          include: {
+            client: true,
+            lines: { select: { modelId: true, unitPrice: true } }
+          }
+        },
+        lines: { select: { modelId: true, quantity: true } }
+      }
     });
     if (!delivery) { res.status(404).json({ message: 'Livraison non trouvée' }); return; }
-    const subtotal = Number(delivery.order.totalAmount);
-    const tvaAmount = subtotal * (Number(tvaRate) / 100);
-    const totalAmount = subtotal + tvaAmount + Number(timbre);
-    const invoice = await prisma.invoice.create({
-      data: {
-        invoiceNumber: generateInvoiceNumber(),
-        deliveryId,
-        clientId: delivery.order.clientId,
-        invoiceDate: new Date(),
-        dueDate: dueDate ? new Date(dueDate) : new Date(Date.now() + delivery.order.client.paymentTerms * 86400000),
-        subtotal,
-        tvaRate,
-        tvaAmount,
-        timbre,
-        totalAmount,
-        notes
-      },
-      include: { client: { select: { name: true } }, delivery: { select: { deliveryNumber: true } } }
+
+    // Guard: only SIGNE deliveries can be invoiced
+    if (delivery.status !== 'SIGNE') {
+      res.status(400).json({ message: 'Seules les livraisons signées peuvent être facturées' });
+      return;
+    }
+
+    // Compute subtotal from this delivery's lines × order unit prices
+    const orderPriceMap = new Map(delivery.order.lines.map(l => [l.modelId, Number(l.unitPrice)]));
+    const subtotal = round2(
+      delivery.lines.reduce((s, l) => s + l.quantity * (orderPriceMap.get(l.modelId) ?? 0), 0)
+    );
+    const tvaAmount = round2(subtotal * parsedTvaRate / 100);
+    const totalAmount = round2(subtotal + tvaAmount + parsedTimbre);
+
+    const invoice = await prisma.$transaction(async (tx) => {
+      const inv = await tx.invoice.create({
+        data: {
+          invoiceNumber: await generateInvoiceNumber(tx),
+          deliveryId,
+          clientId: delivery.order.clientId,
+          invoiceDate: new Date(),
+          dueDate: dueDate
+            ? new Date(dueDate)
+            : new Date(Date.now() + delivery.order.client.paymentTerms * 86400000),
+          subtotal,
+          tvaRate: parsedTvaRate,
+          tvaAmount,
+          timbre: parsedTimbre,
+          totalAmount,
+          notes
+        },
+        include: { client: { select: { name: true } }, delivery: { select: { deliveryNumber: true } } }
+      });
+      await tx.clientOrder.update({
+        where: { id: delivery.orderId },
+        data: { status: 'FACTUREE' }
+      });
+      return inv;
     });
-    // Update order status
-    await prisma.clientOrder.update({ where: { id: delivery.orderId }, data: { status: 'FACTUREE' } });
+
     res.status(201).json(invoice);
-  } catch { res.status(500).json({ message: 'Erreur création facture' }); }
+  } catch (err: unknown) {
+    if ((err as { code?: string }).code === 'P2002') {
+      res.status(409).json({ message: 'Une facture existe déjà pour cette livraison' });
+    } else {
+      res.status(500).json({ message: 'Erreur création facture' });
+    }
+  }
 };
 
 export const addPayment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { amount, method, reference, paymentDate, notes } = req.body;
-    const payment = await prisma.payment.create({
-      data: { invoiceId: req.params.id, amount, method, reference, paymentDate: paymentDate ? new Date(paymentDate) : new Date(), notes }
-    });
-    const invoice = await prisma.invoice.findUnique({
-      where: { id: req.params.id },
-      include: { payments: true, delivery: { select: { orderId: true } } }
-    });
-    if (invoice) {
-      const totalPaid = invoice.payments.reduce((s, p) => s + Number(p.amount), 0);
-      const newStatus = totalPaid >= Number(invoice.totalAmount) ? 'PAYEE' : totalPaid > 0 ? 'PARTIELLEMENT_PAYEE' : invoice.status;
-      await prisma.invoice.update({ where: { id: req.params.id }, data: { amountPaid: totalPaid, status: newStatus } });
-      if (newStatus === 'PAYEE' && invoice.delivery?.orderId) {
-        await prisma.clientOrder.update({ where: { id: invoice.delivery.orderId }, data: { status: 'PAYEE' } }).catch(() => {});
-      }
+
+    // Validate payment amount — must be a positive finite number
+    const parsedAmount = Number(amount);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      res.status(400).json({ message: 'Le montant doit être un nombre positif' });
+      return;
     }
-    res.status(201).json(payment);
-  } catch { res.status(500).json({ message: 'Erreur enregistrement paiement' }); }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const invoice = await tx.invoice.findUnique({
+        where: { id: req.params.id },
+        include: { payments: true, delivery: { select: { orderId: true } } }
+      });
+      if (!invoice) throw Object.assign(new Error('Facture non trouvée'), { statusCode: 404 });
+      if (invoice.status === 'ANNULEE') {
+        throw Object.assign(new Error('Facture annulée'), { statusCode: 400 });
+      }
+
+      // Prevent overpayment
+      const alreadyPaid = invoice.payments.reduce((s, p) => s + Number(p.amount), 0);
+      const remaining = round2(Number(invoice.totalAmount) - alreadyPaid);
+      if (parsedAmount > remaining + 0.01) {
+        throw Object.assign(
+          new Error(`Montant dépasse le solde restant (${remaining.toLocaleString('fr-DZ')} DZD)`),
+          { statusCode: 400 }
+        );
+      }
+
+      // Duplicate reference check
+      if (reference) {
+        const dup = await tx.payment.findFirst({ where: { invoiceId: invoice.id, reference } });
+        if (dup) throw Object.assign(new Error('Référence de paiement déjà enregistrée'), { statusCode: 409 });
+      }
+
+      const payment = await tx.payment.create({
+        data: {
+          invoiceId: req.params.id,
+          amount: parsedAmount,
+          method,
+          reference,
+          paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
+          notes
+        }
+      });
+
+      // Recompute inside transaction to avoid race
+      const totalPaid = round2(alreadyPaid + parsedAmount);
+      const newStatus = totalPaid >= Number(invoice.totalAmount) - 0.01
+        ? 'PAYEE'
+        : 'PARTIELLEMENT_PAYEE';
+
+      await tx.invoice.update({
+        where: { id: req.params.id },
+        data: { amountPaid: totalPaid, status: newStatus }
+      });
+
+      if (newStatus === 'PAYEE' && invoice.delivery?.orderId) {
+        await tx.clientOrder.update({
+          where: { id: invoice.delivery.orderId },
+          data: { status: 'PAYEE' }
+        }).catch(() => {});
+      }
+
+      return payment;
+    });
+
+    res.status(201).json(result);
+  } catch (err: unknown) {
+    const e = err as { statusCode?: number; message?: string };
+    if (e.statusCode) {
+      res.status(e.statusCode).json({ message: e.message });
+    } else {
+      res.status(500).json({ message: 'Erreur enregistrement paiement' });
+    }
+  }
 };
 
 export const getInvoiceSummary = async (_req: AuthRequest, res: Response): Promise<void> => {

@@ -11,7 +11,8 @@ export const getDefectTypes = async (_req: AuthRequest, res: Response): Promise<
 
 export const createDefectType = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const dt = await prisma.defectType.create({ data: req.body });
+    const { code, name, severity, description } = req.body;
+    const dt = await prisma.defectType.create({ data: { code, name, severity, description } });
     res.status(201).json(dt);
   } catch { res.status(500).json({ message: 'Erreur création type défaut' }); }
 };
@@ -55,9 +56,9 @@ export const createQualityCheck = async (req: AuthRequest, res: Response): Promi
         status: qcStatus,
         notes,
         defects: {
-          create: ((defects || []) as { defectTypeId: string; quantity: number; notes?: string }[]).map(d => ({
+          create: ((defects || []) as { defectTypeId: string; count: number; notes?: string }[]).map(d => ({
             defectTypeId: d.defectTypeId,
-            quantity: d.quantity,
+            quantity: d.count,
             notes: d.notes
           }))
         }

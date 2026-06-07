@@ -115,12 +115,12 @@ export default function Invoices() {
 
   const createMut = useMutation({
     mutationFn: (d: unknown) => invoicesApi.create(d),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['invoices', 'invoice-summary'] }); setShowCreate(false); }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['invoices'] }); qc.invalidateQueries({ queryKey: ['invoice-summary'] }); setShowCreate(false); }
   });
 
   const payMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: unknown }) => invoicesApi.addPayment(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['invoices', 'invoice-summary'] }); setPayInvoice(null); }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['invoices'] }); qc.invalidateQueries({ queryKey: ['invoice-summary'] }); setPayInvoice(null); }
   });
 
   return (

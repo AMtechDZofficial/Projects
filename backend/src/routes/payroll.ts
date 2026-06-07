@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { authenticate, requireRole } from '../middleware/auth';
 import {
   getPayrolls, calculatePayrollHandler, createPayroll,
   updatePayroll, validatePayroll, markAsPaid, getPayrollSummary
@@ -10,10 +10,10 @@ router.use(authenticate);
 
 router.get('/', getPayrolls);
 router.get('/summary', getPayrollSummary);
-router.post('/calculate', calculatePayrollHandler);
-router.post('/', createPayroll);
-router.put('/:id', updatePayroll);
-router.post('/:id/validate', validatePayroll);
-router.post('/:id/pay', markAsPaid);
+router.post('/calculate', requireRole('ADMIN', 'MANAGER'), calculatePayrollHandler);
+router.post('/', requireRole('ADMIN', 'MANAGER'), createPayroll);
+router.put('/:id', requireRole('ADMIN', 'MANAGER'), updatePayroll);
+router.post('/:id/validate', requireRole('ADMIN', 'MANAGER'), validatePayroll);
+router.post('/:id/pay', requireRole('ADMIN'), markAsPaid);
 
 export default router;

@@ -33,8 +33,9 @@ export const calculatePayrollHandler = async (req: AuthRequest, res: Response): 
 
 export const createPayroll = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const { employeeId, periodStart, periodEnd, workDays, hoursWorked, baseSalary, pieceEarnings, chainBonus, bonus, deductions, totalAmount, notes } = req.body;
     const payroll = await prisma.payroll.create({
-      data: req.body,
+      data: { employeeId, periodStart: new Date(periodStart), periodEnd: new Date(periodEnd), workDays, hoursWorked, baseSalary, pieceEarnings, chainBonus, bonus, deductions, totalAmount, notes },
       include: { employee: { select: { firstName: true, lastName: true } } }
     });
     res.status(201).json(payroll);
@@ -45,7 +46,11 @@ export const createPayroll = async (req: AuthRequest, res: Response): Promise<vo
 
 export const updatePayroll = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const payroll = await prisma.payroll.update({ where: { id: req.params.id }, data: req.body });
+    const { workDays, hoursWorked, baseSalary, pieceEarnings, chainBonus, bonus, deductions, totalAmount, notes } = req.body;
+    const payroll = await prisma.payroll.update({
+      where: { id: req.params.id },
+      data: { workDays, hoursWorked, baseSalary, pieceEarnings, chainBonus, bonus, deductions, totalAmount, notes }
+    });
     res.json(payroll);
   } catch {
     res.status(500).json({ message: 'Erreur mise à jour paie' });

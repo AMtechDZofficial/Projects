@@ -8,12 +8,19 @@ export const getAttendance = async (req: AuthRequest, res: Response): Promise<vo
     const where: Record<string, unknown> = {};
     if (employeeId) where.employeeId = employeeId;
     if (date) {
-      const d = new Date(date as string);
-      where.date = d;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date as string)) {
+        res.status(400).json({ message: 'Format de date invalide (YYYY-MM-DD)' });
+        return;
+      }
+      where.date = new Date(date as string);
     } else if (month && year) {
-      const start = new Date(Number(year), Number(month) - 1, 1);
-      const end = new Date(Number(year), Number(month), 0);
-      where.date = { gte: start, lte: end };
+      const m = Number(month);
+      const y = Number(year);
+      if (!Number.isInteger(m) || m < 1 || m > 12 || !Number.isInteger(y) || y < 2000 || y > 2100) {
+        res.status(400).json({ message: 'Mois ou année invalide' });
+        return;
+      }
+      where.date = { gte: new Date(`${y}-${String(m).padStart(2, '0')}-01`), lte: new Date(`${y}-${String(m).padStart(2, '0')}-${new Date(y, m, 0).getDate()}`) };
     }
     const records = await prisma.attendance.findMany({
       where,
@@ -54,15 +61,15 @@ export const bulkAttendance = async (req: AuthRequest, res: Response): Promise<v
 
 export const getAttendanceSummary = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayDate = new Date(dateStr);
     const [presents, absents, totalEmployees] = await Promise.all([
-      prisma.attendance.count({ where: { date: today, status: 'PRESENT' } }),
-      prisma.attendance.count({ where: { date: today, status: { in: ['ABSENT', 'MALADIE'] } } }),
+      prisma.attendance.count({ where: { date: todayDate, status: 'PRESENT' } }),
+      prisma.attendance.count({ where: { date: todayDate, status: { in: ['ABSENT', 'MALADIE'] } } }),
       prisma.employee.count({ where: { isActive: true } })
     ]);
     const nonPointed = totalEmployees - presents - absents;
-    const dateStr = today.toISOString().split('T')[0];
     res.json({ presents, absents, nonPointed, totalEmployees, date: dateStr });
   } catch { res.status(500).json({ message: 'Erreur résumé présences' }); }
 };

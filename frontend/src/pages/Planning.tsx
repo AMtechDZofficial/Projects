@@ -63,7 +63,7 @@ export default function Planning() {
 
   const { data: capacity = [], isLoading } = useQuery({
     queryKey: ['planning-capacity'],
-    queryFn: () => planningApi.getCapacity().then(r => r.data as OrderCapacityItem[])
+    queryFn: () => planningApi.getCapacity().then(r => (r.data as { orders: OrderCapacityItem[] }).orders)
   });
 
   const scheduleMut = useMutation({

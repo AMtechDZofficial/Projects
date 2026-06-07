@@ -2,10 +2,12 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import prisma from '../config/database';
 
-function generateOrderNumber(): string {
+async function generateOrderNumber(): Promise<string> {
   const year = new Date().getFullYear();
-  const rand = Math.floor(Math.random() * 9000) + 1000;
-  return `CMD-${year}-${rand}`;
+  const count = await prisma.clientOrder.count({
+    where: { orderDate: { gte: new Date(`${year}-01-01`) } }
+  });
+  return `CMD-${year}-${String(count + 1).padStart(5, '0')}`;
 }
 
 export const getOrders = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -49,7 +51,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     const totalAmount = (lines as { quantity: number; unitPrice: number }[]).reduce((s, l) => s + l.quantity * l.unitPrice, 0);
     const order = await prisma.clientOrder.create({
       data: {
-        orderNumber: generateOrderNumber(),
+        orderNumber: await generateOrderNumber(),
         clientId,
         deliveryDate: new Date(deliveryDate),
         depositAmount: depositAmount || 0,
@@ -76,9 +78,15 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
   } catch { res.status(500).json({ message: 'Erreur création commande' }); }
 };
 
+const VALID_ORDER_STATUSES = ['DEVIS', 'CONFIRMEE', 'EN_PRODUCTION', 'PARTIELLEMENT_LIVREE', 'LIVREE', 'FACTUREE', 'PAYEE', 'ANNULEE'];
+
 export const updateOrderStatus = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { status } = req.body;
+    if (!status || !VALID_ORDER_STATUSES.includes(status)) {
+      res.status(400).json({ message: 'Statut invalide' });
+      return;
+    }
     const order = await prisma.clientOrder.update({ where: { id: req.params.id }, data: { status } });
     res.json(order);
   } catch { res.status(500).json({ message: 'Erreur mise à jour statut' }); }
