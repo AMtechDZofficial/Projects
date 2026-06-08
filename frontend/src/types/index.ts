@@ -366,7 +366,7 @@ export interface Invoice {
   deliveryId: string;
   clientId: string;
   client: { name: string; code: string; address?: string; city?: string; phone?: string; email?: string; rc?: string; nif?: string; paymentTerms?: number };
-  delivery: { deliveryNumber: string; deliveryDate: string; lines?: DeliveryLine[] };
+  delivery: { deliveryNumber: string; deliveryDate: string; lines?: DeliveryLine[]; order?: { lines: { modelId: string; colorRef?: string; unitPrice: number }[] } };
   invoiceDate: string;
   dueDate: string;
   subtotal: number;

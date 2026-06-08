@@ -25,6 +25,9 @@ export default function FactureClient({ invoiceId }: { invoiceId: string }) {
   const restant = totalTTC - amountPaid;
 
   const deliveryLines = invoice.delivery?.lines || [];
+  const orderPriceMap = new Map(
+    (invoice.delivery?.order?.lines || []).map(l => [`${l.modelId}:${l.colorRef ?? ''}`, Number(l.unitPrice)])
+  );
 
   return (
     <div className="print-page font-sans text-sm text-gray-900" style={{ width: '210mm', minHeight: '297mm', padding: '15mm', boxSizing: 'border-box' }}>
@@ -97,7 +100,7 @@ export default function FactureClient({ invoiceId }: { invoiceId: string }) {
           </thead>
           <tbody>
             {deliveryLines.map((line, idx) => {
-              const unitPrice = subtotal / deliveryLines.reduce((s, l) => s + l.quantity, 0) || 0;
+              const unitPrice = orderPriceMap.get(`${line.modelId}:${line.colorRef ?? ''}`) ?? orderPriceMap.get(`${line.modelId}:`) ?? 0;
               return (
                 <tr key={line.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td className="py-3 px-4 font-medium">{line.model.name}</td>

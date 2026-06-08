@@ -55,8 +55,8 @@ export const createDelivery = async (req: AuthRequest, res: Response): Promise<v
       const order = await tx.clientOrder.findUnique({
         where: { id: orderId },
         include: {
-          lines: { select: { modelId: true, quantity: true } },
-          deliveries: { include: { lines: { select: { modelId: true, quantity: true } } } }
+          lines: { select: { modelId: true, colorRef: true, quantity: true } },
+          deliveries: { include: { lines: { select: { modelId: true, colorRef: true, quantity: true } } } }
         }
       });
       if (!order) throw Object.assign(new Error('Commande non trouvée'), { statusCode: 404 });
@@ -85,18 +85,21 @@ export const createDelivery = async (req: AuthRequest, res: Response): Promise<v
         }
       });
 
-      // Check if all ordered quantities are now covered
-      const deliveredByModel = new Map<string, number>();
+      // Check if all ordered quantities are now covered (keyed by modelId:colorRef)
+      const deliveredMap = new Map<string, number>();
+      const lineKey = (modelId: string, colorRef?: string | null) => `${modelId}:${colorRef ?? ''}`;
       for (const existingDel of order.deliveries) {
         for (const dl of existingDel.lines) {
-          deliveredByModel.set(dl.modelId, (deliveredByModel.get(dl.modelId) ?? 0) + dl.quantity);
+          const k = lineKey(dl.modelId, dl.colorRef);
+          deliveredMap.set(k, (deliveredMap.get(k) ?? 0) + dl.quantity);
         }
       }
       for (const nl of typedLines) {
-        deliveredByModel.set(nl.modelId, (deliveredByModel.get(nl.modelId) ?? 0) + nl.quantity);
+        const k = lineKey(nl.modelId, nl.colorRef);
+        deliveredMap.set(k, (deliveredMap.get(k) ?? 0) + nl.quantity);
       }
       const fullyDelivered = order.lines.every(
-        ol => (deliveredByModel.get(ol.modelId) ?? 0) >= ol.quantity
+        ol => (deliveredMap.get(lineKey(ol.modelId, ol.colorRef)) ?? 0) >= ol.quantity
       );
 
       await tx.clientOrder.update({

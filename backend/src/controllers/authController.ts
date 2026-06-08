@@ -33,12 +33,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const ALLOWED_ROLES = ['ADMIN', 'MANAGER', 'OPERATOR'];
+
 // Register requires an authenticated ADMIN — enforced at the route level
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name } = req.body;
-    // role is NOT accepted from req.body — always defaults to MANAGER
-    const role = 'MANAGER';
+    const { email, password, name, role: requestedRole } = req.body;
+    const role = ALLOWED_ROLES.includes(requestedRole) ? requestedRole : 'MANAGER';
     if (!email || !password || !name) {
       res.status(400).json({ message: 'Email, mot de passe et nom requis' });
       return;

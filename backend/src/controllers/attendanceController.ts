@@ -31,9 +31,19 @@ export const getAttendance = async (req: AuthRequest, res: Response): Promise<vo
   } catch { res.status(500).json({ message: 'Erreur chargement présences' }); }
 };
 
+const VALID_ATTENDANCE_STATUSES = ['PRESENT', 'ABSENT', 'CONGE', 'MALADIE', 'REPOS', 'MISSION'];
+
 export const upsertAttendance = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { employeeId, date, status, arrivedAt, leftAt, hoursWorked, notes } = req.body;
+    if (!status || !VALID_ATTENDANCE_STATUSES.includes(status)) {
+      res.status(400).json({ message: 'Statut de présence invalide' });
+      return;
+    }
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      res.status(400).json({ message: 'Format de date invalide (YYYY-MM-DD)' });
+      return;
+    }
     const dateObj = new Date(date);
     const record = await prisma.attendance.upsert({
       where: { employeeId_date: { employeeId, date: dateObj } },

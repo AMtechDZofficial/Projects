@@ -2,9 +2,9 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import prisma from '../config/database';
 
-async function generateOrderNumber(): Promise<string> {
+async function generateOrderNumber(tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]): Promise<string> {
   const year = new Date().getFullYear();
-  const count = await prisma.clientOrder.count({
+  const count = await tx.clientOrder.count({
     where: { orderDate: { gte: new Date(`${year}-01-01`) } }
   });
   return `CMD-${year}-${String(count + 1).padStart(5, '0')}`;
@@ -48,31 +48,34 @@ export const getOrder = async (req: AuthRequest, res: Response): Promise<void> =
 export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { clientId, deliveryDate, depositAmount, notes, lines } = req.body;
-    const totalAmount = (lines as { quantity: number; unitPrice: number }[]).reduce((s, l) => s + l.quantity * l.unitPrice, 0);
-    const order = await prisma.clientOrder.create({
-      data: {
-        orderNumber: await generateOrderNumber(),
-        clientId,
-        deliveryDate: new Date(deliveryDate),
-        depositAmount: depositAmount || 0,
-        totalAmount,
-        notes,
-        lines: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          create: (lines as { modelId: string; colorRef?: string; sizeBreakdown: unknown; quantity: number; unitPrice: number }[]).map(l => ({
-            modelId: l.modelId,
-            colorRef: l.colorRef,
-            sizeBreakdown: l.sizeBreakdown,
-            quantity: l.quantity,
-            unitPrice: l.unitPrice,
-            totalPrice: l.quantity * l.unitPrice
-          })) as any
+    const typedLines = (lines as { modelId: string; colorRef?: string; sizeBreakdown: unknown; quantity: number; unitPrice: number }[]);
+    const totalAmount = typedLines.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
+    const order = await prisma.$transaction(async (tx) => {
+      return tx.clientOrder.create({
+        data: {
+          orderNumber: await generateOrderNumber(tx),
+          clientId,
+          deliveryDate: new Date(deliveryDate),
+          depositAmount: depositAmount || 0,
+          totalAmount,
+          notes,
+          lines: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            create: typedLines.map(l => ({
+              modelId: l.modelId,
+              colorRef: l.colorRef,
+              sizeBreakdown: l.sizeBreakdown,
+              quantity: l.quantity,
+              unitPrice: l.unitPrice,
+              totalPrice: l.quantity * l.unitPrice
+            })) as any
+          }
+        },
+        include: {
+          client: { select: { name: true, code: true } },
+          lines: { include: { model: { select: { name: true } } } }
         }
-      },
-      include: {
-        client: { select: { name: true, code: true } },
-        lines: { include: { model: { select: { name: true } } } }
-      }
+      });
     });
     res.status(201).json(order);
   } catch { res.status(500).json({ message: 'Erreur création commande' }); }

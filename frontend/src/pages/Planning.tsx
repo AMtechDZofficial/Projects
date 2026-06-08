@@ -33,7 +33,7 @@ function ScheduleModal({ order, onSave, onClose }: { order: OrderCapacityItem; o
       <div className="p-3 bg-gray-50 rounded-xl text-sm">
         <p className="font-medium">{order.orderNumber}</p>
         <p className="text-gray-500">{order.modelName} — {order.quantity} pcs</p>
-        <p className="text-xs text-primary-600 mt-1">Durée estimée: <strong>{order.estimatedDays} jours</strong></p>
+        <p className="text-xs text-primary-600 mt-1">Durée estimée: <strong>{Number(order.estimatedDays).toFixed(1)} jours</strong></p>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -134,7 +134,7 @@ export default function Planning() {
                       <td className="table-cell text-right">
                         <span className="flex items-center justify-end gap-1">
                           <Clock className="w-3 h-3 text-gray-400" />
-                          {o.estimatedDays}j
+                          {Number(o.estimatedDays).toFixed(1)}j
                         </span>
                       </td>
                       <td className="table-cell"><CapacityBar load={load} /></td>

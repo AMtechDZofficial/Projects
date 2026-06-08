@@ -40,7 +40,7 @@ export const getInvoice = async (req: AuthRequest, res: Response): Promise<void>
       where: { id: req.params.id },
       include: {
         client: true,
-        delivery: { include: { lines: { include: { model: true } } } },
+        delivery: { include: { lines: { include: { model: true } }, order: { include: { lines: { select: { modelId: true, colorRef: true, unitPrice: true } } } } } },
         payments: { orderBy: { paymentDate: 'desc' } }
       }
     });
@@ -153,7 +153,7 @@ export const addPayment = async (req: AuthRequest, res: Response): Promise<void>
       // Prevent overpayment
       const alreadyPaid = invoice.payments.reduce((s, p) => s + Number(p.amount), 0);
       const remaining = round2(Number(invoice.totalAmount) - alreadyPaid);
-      if (parsedAmount > remaining + 0.01) {
+      if (parsedAmount - remaining > 0.01) {
         throw Object.assign(
           new Error(`Montant dépasse le solde restant (${remaining.toLocaleString('fr-DZ')} DZD)`),
           { statusCode: 400 }
@@ -192,7 +192,7 @@ export const addPayment = async (req: AuthRequest, res: Response): Promise<void>
         await tx.clientOrder.update({
           where: { id: invoice.delivery.orderId },
           data: { status: 'PAYEE' }
-        }).catch(() => {});
+        });
       }
 
       return payment;
