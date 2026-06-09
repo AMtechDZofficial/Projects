@@ -26,7 +26,7 @@ export default function FactureClient({ invoiceId }: { invoiceId: string }) {
 
   const deliveryLines = invoice.delivery?.lines || [];
   const orderPriceMap = new Map(
-    (invoice.delivery?.order?.lines || []).map(l => [`${l.modelId}:${l.colorRef ?? ''}`, Number(l.unitPrice)])
+    (invoice.delivery?.order?.lines || []).map(l => [`${l.modelId}:${l.colorRef || ''}`, Number(l.unitPrice)])
   );
 
   return (
@@ -100,7 +100,7 @@ export default function FactureClient({ invoiceId }: { invoiceId: string }) {
           </thead>
           <tbody>
             {deliveryLines.map((line, idx) => {
-              const unitPrice = orderPriceMap.get(`${line.modelId}:${line.colorRef ?? ''}`) ?? orderPriceMap.get(`${line.modelId}:`) ?? 0;
+              const unitPrice = orderPriceMap.get(`${line.modelId}:${line.colorRef || ''}`) ?? 0;
               return (
                 <tr key={line.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td className="py-3 px-4 font-medium">{line.model.name}</td>

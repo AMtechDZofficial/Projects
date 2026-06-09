@@ -71,10 +71,10 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
         order: {
           include: {
             client: true,
-            lines: { select: { modelId: true, unitPrice: true } }
+            lines: { select: { modelId: true, colorRef: true, unitPrice: true } }
           }
         },
-        lines: { select: { modelId: true, quantity: true } }
+        lines: { select: { modelId: true, colorRef: true, quantity: true } }
       }
     });
     if (!delivery) { res.status(404).json({ message: 'Livraison non trouvée' }); return; }
@@ -85,10 +85,11 @@ export const createInvoice = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    // Compute subtotal from this delivery's lines × order unit prices
-    const orderPriceMap = new Map(delivery.order.lines.map(l => [l.modelId, Number(l.unitPrice)]));
+    // Compute subtotal from this delivery's lines × order unit prices (keyed by modelId:colorRef)
+    const priceKey = (modelId: string, colorRef?: string | null) => `${modelId}:${colorRef || ''}`;
+    const orderPriceMap = new Map(delivery.order.lines.map(l => [priceKey(l.modelId, l.colorRef), Number(l.unitPrice)]));
     const subtotal = round2(
-      delivery.lines.reduce((s, l) => s + l.quantity * (orderPriceMap.get(l.modelId) ?? 0), 0)
+      delivery.lines.reduce((s, l) => s + l.quantity * (orderPriceMap.get(priceKey(l.modelId, l.colorRef)) ?? 0), 0)
     );
     const tvaAmount = round2(subtotal * parsedTvaRate / 100);
     const totalAmount = round2(subtotal + tvaAmount + parsedTimbre);

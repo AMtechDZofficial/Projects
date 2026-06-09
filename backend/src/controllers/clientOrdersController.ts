@@ -46,37 +46,47 @@ export const getOrder = async (req: AuthRequest, res: Response): Promise<void> =
 };
 
 export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { clientId, deliveryDate, depositAmount, notes, lines } = req.body;
-    const typedLines = (lines as { modelId: string; colorRef?: string; sizeBreakdown: unknown; quantity: number; unitPrice: number }[]);
-    const totalAmount = typedLines.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
-    const order = await prisma.$transaction(async (tx) => {
-      return tx.clientOrder.create({
-        data: {
-          orderNumber: await generateOrderNumber(tx),
-          clientId,
-          deliveryDate: new Date(deliveryDate),
-          depositAmount: depositAmount || 0,
-          totalAmount,
-          notes,
-          lines: {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            create: typedLines.map(l => ({
-              modelId: l.modelId,
-              colorRef: l.colorRef,
-              sizeBreakdown: l.sizeBreakdown,
-              quantity: l.quantity,
-              unitPrice: l.unitPrice,
-              totalPrice: l.quantity * l.unitPrice
-            })) as any
-          }
-        },
-        include: {
-          client: { select: { name: true, code: true } },
-          lines: { include: { model: { select: { name: true } } } }
+  const { clientId, deliveryDate, depositAmount, notes, lines } = req.body;
+  const typedLines = (lines as { modelId: string; colorRef?: string; sizeBreakdown: unknown; quantity: number; unitPrice: number }[]);
+  const totalAmount = typedLines.reduce((s, l) => s + l.quantity * l.unitPrice, 0);
+
+  const run = () => prisma.$transaction(async (tx) => {
+    return tx.clientOrder.create({
+      data: {
+        orderNumber: await generateOrderNumber(tx),
+        clientId,
+        deliveryDate: new Date(deliveryDate),
+        depositAmount: depositAmount || 0,
+        totalAmount,
+        notes,
+        lines: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          create: typedLines.map(l => ({
+            modelId: l.modelId,
+            colorRef: l.colorRef,
+            sizeBreakdown: l.sizeBreakdown,
+            quantity: l.quantity,
+            unitPrice: l.unitPrice,
+            totalPrice: l.quantity * l.unitPrice
+          })) as any
         }
-      });
+      },
+      include: {
+        client: { select: { name: true, code: true } },
+        lines: { include: { model: { select: { name: true } } } }
+      }
     });
+  });
+
+  try {
+    let order;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try { order = await run(); break; }
+      catch (err: unknown) {
+        if ((err as { code?: string }).code === 'P2002' && attempt < 2) continue;
+        throw err;
+      }
+    }
     res.status(201).json(order);
   } catch { res.status(500).json({ message: 'Erreur création commande' }); }
 };

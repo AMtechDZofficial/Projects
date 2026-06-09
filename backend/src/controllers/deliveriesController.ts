@@ -87,7 +87,7 @@ export const createDelivery = async (req: AuthRequest, res: Response): Promise<v
 
       // Check if all ordered quantities are now covered (keyed by modelId:colorRef)
       const deliveredMap = new Map<string, number>();
-      const lineKey = (modelId: string, colorRef?: string | null) => `${modelId}:${colorRef ?? ''}`;
+      const lineKey = (modelId: string, colorRef?: string | null) => `${modelId}:${colorRef || ''}`;
       for (const existingDel of order.deliveries) {
         for (const dl of existingDel.lines) {
           const k = lineKey(dl.modelId, dl.colorRef);

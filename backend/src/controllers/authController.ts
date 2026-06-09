@@ -33,7 +33,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const ALLOWED_ROLES = ['ADMIN', 'MANAGER', 'OPERATOR'];
+const ALLOWED_ROLES = ['MANAGER', 'OPERATOR'];
 
 // Register requires an authenticated ADMIN — enforced at the route level
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
