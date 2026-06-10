@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Scissors, ChevronDown, ChevronRight, Trash2, Edit2, Clock, Package, Printer } from 'lucide-react';
+import { Plus, Search, Scissors, ChevronDown, ChevronRight, Trash2, Edit2, Clock, Package, Printer, FileText } from 'lucide-react';
 import { modelsApi, materialsApi } from '../services/api';
 import { CoutureModel, Material } from '../types';
 import Modal from '../components/ui/Modal';
 import Badge from '../components/ui/Badge';
 import PrintModal from '../components/print/PrintModal';
 import FicheTechniqueModele from '../components/print/FicheTechniqueModele';
+import NomenclatureBOM from '../components/print/NomenclatureBOM';
+import TableauGradation from '../components/print/TableauGradation';
+import GammeMontage from '../components/print/GammeMontage';
+import FicheEssayage from '../components/print/FicheEssayage';
+import FicheDeveloppementPrototype from '../components/print/FicheDeveloppementPrototype';
+import FicheColorisMatières from '../components/print/FicheColorisMatières';
 
 function ModelForm({ model, onSave, onClose }: { model?: CoutureModel; onSave: (data: unknown) => void; onClose: () => void }) {
   const [form, setForm] = useState({
@@ -195,13 +201,76 @@ function ModelDetail({ model }: { model: CoutureModel }) {
   );
 }
 
+type PrintDoc = {
+  key: string;
+  label: string;
+  desc: string;
+};
+
+const PRINT_DOCS: PrintDoc[] = [
+  { key: 'fiche-technique', label: 'Fiche Technique Modèle', desc: 'Croquis, matières, instructions, entretien' },
+  { key: 'nomenclature-bom', label: 'Nomenclature BOM', desc: 'Pièces de patron, dimensions, sens du fil' },
+  { key: 'gradation', label: 'Tableau de Gradation', desc: 'Mensurations XS/36 → XXL/46 par taille' },
+  { key: 'gamme-montage', label: 'Gamme de Montage', desc: 'Séquence Préparation / Assemblage / Finitions' },
+  { key: 'essayage', label: 'Fiche Essayage & Corrections', desc: 'Suivi des 3 essayages, zones, décision' },
+  { key: 'prototype', label: 'Fiche Développement Prototype', desc: 'Cycle de vie toile → validation production' },
+  { key: 'coloris', label: 'Fiche Coloris & Matières', desc: 'Variantes couleurs, refs tissu, nuancier' }
+];
+
+function PrintMenu({ modelId, onClose }: { modelId: string; onClose: () => void }) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  return (
+    <div ref={menuRef} className="absolute right-0 top-full mt-1 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+      <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Documents à imprimer</span>
+      </div>
+      {PRINT_DOCS.map(doc => (
+        <button
+          key={doc.key}
+          className="w-full text-left px-3 py-2.5 hover:bg-purple-50 flex items-start gap-3 transition-colors"
+          onClick={() => {
+            onClose();
+            // dispatch via custom event caught by parent
+            document.dispatchEvent(new CustomEvent('open-print', { detail: { modelId, doc: doc.key } }));
+          }}
+        >
+          <FileText className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
+          <div>
+            <div className="text-sm font-medium text-gray-800">{doc.label}</div>
+            <div className="text-xs text-gray-400">{doc.desc}</div>
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function Models() {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<CoutureModel | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [printModelId, setPrintModelId] = useState<string | null>(null);
+  const [printMenuId, setPrintMenuId] = useState<string | null>(null);
+  const [activePrint, setActivePrint] = useState<{ modelId: string; doc: string } | null>(null);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { modelId, doc } = (e as CustomEvent).detail;
+      setActivePrint({ modelId, doc });
+    };
+    document.addEventListener('open-print', handler);
+    return () => document.removeEventListener('open-print', handler);
+  }, []);
 
   const { data: models = [], isLoading } = useQuery({
     queryKey: ['models', search],
@@ -217,6 +286,10 @@ export default function Models() {
     mutationFn: ({ id, data }: { id: string; data: unknown }) => modelsApi.update(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['models'] }); setEditItem(null); }
   });
+
+  const printTitle = activePrint
+    ? PRINT_DOCS.find(d => d.key === activePrint.doc)?.label || 'Document'
+    : '';
 
   return (
     <div className="space-y-5">
@@ -266,9 +339,18 @@ export default function Models() {
                       <p className="text-xs text-gray-400">prix vente</p>
                     </div>
                   )}
-                  <button onClick={e => { e.stopPropagation(); setPrintModelId(m.id); }} className="p-2 hover:bg-purple-50 rounded-lg text-purple-500" title="Fiche Technique">
-                    <Printer className="w-4 h-4" />
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={e => { e.stopPropagation(); setPrintMenuId(printMenuId === m.id ? null : m.id); }}
+                      className="p-2 hover:bg-purple-50 rounded-lg text-purple-500"
+                      title="Documents à imprimer"
+                    >
+                      <Printer className="w-4 h-4" />
+                    </button>
+                    {printMenuId === m.id && (
+                      <PrintMenu modelId={m.id} onClose={() => setPrintMenuId(null)} />
+                    )}
+                  </div>
                   <button onClick={e => { e.stopPropagation(); setEditItem(m); }} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500">
                     <Edit2 className="w-4 h-4" />
                   </button>
@@ -291,8 +373,15 @@ export default function Models() {
       <Modal isOpen={!!editItem} onClose={() => setEditItem(null)} title="Modifier le modèle">
         {editItem && <ModelForm model={editItem} onSave={d => updateMut.mutate({ id: editItem.id, data: d })} onClose={() => setEditItem(null)} />}
       </Modal>
-      <PrintModal isOpen={!!printModelId} onClose={() => setPrintModelId(null)} title="Fiche Technique Modèle">
-        {printModelId && <FicheTechniqueModele modelId={printModelId} />}
+
+      <PrintModal isOpen={!!activePrint} onClose={() => setActivePrint(null)} title={printTitle}>
+        {activePrint?.doc === 'fiche-technique' && <FicheTechniqueModele modelId={activePrint.modelId} />}
+        {activePrint?.doc === 'nomenclature-bom' && <NomenclatureBOM modelId={activePrint.modelId} />}
+        {activePrint?.doc === 'gradation' && <TableauGradation modelId={activePrint.modelId} />}
+        {activePrint?.doc === 'gamme-montage' && <GammeMontage modelId={activePrint.modelId} />}
+        {activePrint?.doc === 'essayage' && <FicheEssayage modelId={activePrint.modelId} />}
+        {activePrint?.doc === 'prototype' && <FicheDeveloppementPrototype modelId={activePrint.modelId} />}
+        {activePrint?.doc === 'coloris' && <FicheColorisMatières modelId={activePrint.modelId} />}
       </PrintModal>
     </div>
   );

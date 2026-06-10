@@ -70,6 +70,78 @@ export interface ModelOperation {
   machineType?: string;
   standardMinutes: number;
   sequence: number;
+  phase?: string;
+  stitchType?: string;
+}
+
+export interface PatternPiece {
+  id: string;
+  modelId: string;
+  pieceName: string;
+  fabricType: string;
+  dimensions?: string;
+  grainLine?: string;
+  quantity: number;
+  seamAllowance?: number;
+  notes?: string;
+  sequence: number;
+}
+
+export interface GradationRow {
+  id: string;
+  modelId: string;
+  measurement: string;
+  xs?: number;
+  s?: number;
+  m?: number;
+  l?: number;
+  xl?: number;
+  xxl?: number;
+  unit: string;
+  sequence: number;
+}
+
+export interface FittingSession {
+  id: string;
+  modelId: string;
+  sessionNumber: number;
+  date?: string;
+  fitterName?: string;
+  corrections?: {
+    zones: Array<{ zone: string; correction: string; patternModif: string }>;
+  };
+  decision?: string;
+  notes?: string;
+}
+
+export interface PrototypeDev {
+  id: string;
+  modelId: string;
+  responsable?: string;
+  toileDate?: string;
+  toileNotes?: string;
+  proto1Date?: string;
+  proto1Notes?: string;
+  proto1Decision?: string;
+  proto2Date?: string;
+  proto2Notes?: string;
+  proto2Decision?: string;
+  validationDate?: string;
+  validationNotes?: string;
+  productionReady: boolean;
+}
+
+export interface ColorVariant {
+  id: string;
+  modelId: string;
+  colorName: string;
+  colorCode?: string;
+  fabricRef?: string;
+  liningRef?: string;
+  accessoriesRefs?: string;
+  isValidated: boolean;
+  notes?: string;
+  sequence: number;
 }
 
 export interface CoutureModel {
@@ -79,9 +151,17 @@ export interface CoutureModel {
   category: string;
   description?: string;
   salePrice?: number;
+  constructionNotes?: string;
+  careInstructions?: string;
+  labelInfo?: string;
   isActive: boolean;
   components: ModelComponent[];
   operations: ModelOperation[];
+  patternPieces?: PatternPiece[];
+  gradationRows?: GradationRow[];
+  fittingSessions?: FittingSession[];
+  prototypeDev?: PrototypeDev | null;
+  colorVariants?: ColorVariant[];
 }
 
 export interface ProductionOrder {
