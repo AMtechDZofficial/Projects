@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend: Debug",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["ts-node-dev", "--respawn", "--transpile-only", "--inspect"],
+      "args": ["src/index.ts"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "envFile": "${workspaceFolder}/backend/.env",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "name": "Frontend: Debug (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "sourceMapPathOverrides": {
+        "/@fs/*": "${workspaceFolder}/frontend/src/*"
+      },
+      "preLaunchTask": "frontend: dev"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack: Debug",
+      "configurations": ["Backend: Debug", "Frontend: Debug (Chrome)"],
+      "stopAll": true
+    }
+  ]
+}
