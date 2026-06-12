@@ -10,6 +10,9 @@ Site web vitrine de **AMtechDZ**, société de consulting et maintenance informa
 - 🔄 Récupération de données
 - 📈 Scaling matériel & logiciel
 - 🗺️ Consulting & roadmap réseau
+- 📡 Installation réseau & Wi-Fi
+- 🖥️ Montage & upgrade PC sur mesure
+- 🔐 Sécurité informatique
 
 ## Structure
 
@@ -31,8 +34,12 @@ python3 -m http.server 8000
 
 Le site peut être déployé gratuitement sur **GitHub Pages** (Settings → Pages → branche `main`, dossier `/`), Netlify ou Vercel.
 
+## Contact
+
+- 📞 / 💬 WhatsApp : 07 93 97 93 81
+- ✉️ amtechdzofficial@gmail.com
+
 ## À personnaliser
 
-- Le numéro de téléphone / WhatsApp (`213000000000` et `0X XX XX XX XX` dans `index.html`)
 - La liste des communes de la zone d'intervention
 - Les horaires d'ouverture
