@@ -16,10 +16,31 @@ Site web vitrine de **AMtechDZ**, société de consulting et maintenance informa
 
 ## Structure
 
-- `index.html` — page principale (français)
-- `style.css` — styles du site
+- `index.html` — page principale (bilingue FR / AR)
+- `style.css` — styles du site (avec support RTL pour l'arabe)
+- `app.js` — bascule de langue, formulaire et interactions
+- `google-business-profile.md` — kit pour la fiche Google
 
 Site 100 % statique : aucun build, aucune dépendance.
+
+## Fonctionnalités
+
+- 🌐 **Bilingue FR / العربية** — bouton de bascule dans le menu, mise en page RTL automatique en arabe, préférence mémorisée
+- 💬 **Bouton WhatsApp flottant** toujours visible
+- 📨 **Formulaire de contact** envoyé par e-mail via Formspree (voir configuration ci-dessous)
+
+## Configurer le formulaire (Formspree — gratuit)
+
+Le formulaire envoie les demandes directement dans votre boîte mail. Pour l'activer :
+
+1. Créez un compte gratuit sur **https://formspree.io** avec `amtechdzofficial@gmail.com`
+2. Créez un nouveau formulaire ; Formspree vous donne un identifiant, ex. `xeqwabcd`
+3. Dans `index.html`, remplacez `VOTRE_ID_FORMSPREE` par cet identifiant :
+   `action="https://formspree.io/f/xeqwabcd"`
+4. Validez votre adresse au premier envoi de test.
+
+> Tant que l'identifiant n'est pas remplacé, le formulaire bascule
+> automatiquement sur l'ouverture du client e-mail (aucune erreur côté visiteur).
 
 ## Lancer en local
 

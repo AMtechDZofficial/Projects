@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
   <meta name="description" content="AMtechDZ : dépannage informatique à domicile, maintenance préventive, sauvegarde et récupération de données, consulting réseau à Chlef et environs.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🛠️</text></svg>">
 </head>
@@ -18,11 +18,12 @@
     <div class="container header-inner">
       <a href="#accueil" class="logo">AM<span>tech</span>DZ</a>
       <nav class="nav" id="nav">
-        <a href="#accueil">Accueil</a>
-        <a href="#services">Services</a>
-        <a href="#zone">Zone d'intervention</a>
-        <a href="#process">Comment ça marche</a>
-        <a href="#contact" class="btn btn-small">Contact</a>
+        <a href="#accueil" data-i18n="nav.home">Accueil</a>
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <a href="#zone" data-i18n="nav.zone">Zone d'intervention</a>
+        <a href="#process" data-i18n="nav.process">Comment ça marche</a>
+        <a href="#contact" class="btn btn-small" data-i18n="nav.contact">Contact</a>
+        <button class="lang-btn" id="langToggle" data-i18n="lang.toggle">العربية</button>
       </nav>
       <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
     </div>
@@ -32,28 +33,28 @@
   <section class="hero" id="accueil">
     <div class="container hero-inner">
       <div class="hero-text">
-        <span class="badge">📍 Chlef &amp; environs</span>
-        <h1>Votre informatique entre de <span class="accent">bonnes mains</span>, chez vous ou dans votre entreprise</h1>
-        <p>
+        <span class="badge" data-i18n="hero.badge">📍 Chlef &amp; environs</span>
+        <h1 data-i18n="hero.title">Votre informatique entre de <span class="accent">bonnes mains</span>, chez vous ou dans votre entreprise</h1>
+        <p data-i18n="hero.desc">
           AMtechDZ assure le dépannage à domicile, la maintenance préventive,
           la protection de vos données et le conseil réseau pour les particuliers
           et les petites entreprises de la wilaya de Chlef.
         </p>
         <div class="hero-actions">
-          <a href="#contact" class="btn btn-primary">Demander une intervention</a>
-          <a href="#services" class="btn btn-ghost">Voir nos services</a>
+          <a href="#contact" class="btn btn-primary" data-i18n="hero.cta1">Demander une intervention</a>
+          <a href="#services" class="btn btn-ghost" data-i18n="hero.cta2">Voir nos services</a>
         </div>
         <ul class="hero-points">
-          <li>✅ Intervention à domicile rapide</li>
-          <li>✅ Contrats de maintenance pour PME</li>
-          <li>✅ Devis gratuit</li>
+          <li data-i18n="hero.point1">✅ Intervention à domicile rapide</li>
+          <li data-i18n="hero.point2">✅ Contrats de maintenance pour PME</li>
+          <li data-i18n="hero.point3">✅ Devis gratuit</li>
         </ul>
       </div>
       <div class="hero-card">
         <div class="hero-card-icon">🖥️</div>
-        <h3>Urgence informatique&nbsp;?</h3>
-        <p>PC en panne, virus, données perdues&nbsp;? On se déplace chez vous.</p>
-        <a class="btn btn-whatsapp" href="https://wa.me/213793979381" target="_blank" rel="noopener">
+        <h3 data-i18n="herocard.title">Urgence informatique&nbsp;?</h3>
+        <p data-i18n="herocard.desc">PC en panne, virus, données perdues&nbsp;? On se déplace chez vous.</p>
+        <a class="btn btn-whatsapp" href="https://wa.me/213793979381" target="_blank" rel="noopener" data-i18n="herocard.wa">
           💬 WhatsApp : 07 93 97 93 81
         </a>
       </div>
@@ -63,62 +64,62 @@
   <!-- ===== Services ===== -->
   <section class="section" id="services">
     <div class="container">
-      <h2 class="section-title">Nos services</h2>
-      <p class="section-sub">Des solutions complètes, du dépannage ponctuel à la stratégie informatique.</p>
+      <h2 class="section-title" data-i18n="services.title">Nos services</h2>
+      <p class="section-sub" data-i18n="services.sub">Des solutions complètes, du dépannage ponctuel à la stratégie informatique.</p>
       <div class="grid">
 
         <article class="card">
           <div class="card-icon">🔧</div>
-          <h3>Dépannage à domicile</h3>
-          <p>Réparation matérielle, suppression de virus, installation de systèmes et de logiciels. Nous nous déplaçons chez vous, à Chlef et dans les environs.</p>
+          <h3 data-i18n="svc1.t">Dépannage à domicile</h3>
+          <p data-i18n="svc1.d">Réparation matérielle, suppression de virus, installation de systèmes et de logiciels. Nous nous déplaçons chez vous, à Chlef et dans les environs.</p>
         </article>
 
         <article class="card">
           <div class="card-icon">🛡️</div>
-          <h3>Maintenance préventive</h3>
-          <p>Contrats mensuels pour petites entreprises : suivi régulier de votre parc informatique, mises à jour, sécurité et interventions prioritaires.</p>
+          <h3 data-i18n="svc2.t">Maintenance préventive</h3>
+          <p data-i18n="svc2.d">Contrats mensuels pour petites entreprises : suivi régulier de votre parc informatique, mises à jour, sécurité et interventions prioritaires.</p>
         </article>
 
         <article class="card">
           <div class="card-icon">💾</div>
-          <h3>Sauvegarde de bases de données</h3>
-          <p>Mise en place de sauvegardes automatiques et fiables de vos bases de données pour ne plus jamais perdre vos informations critiques.</p>
+          <h3 data-i18n="svc3.t">Sauvegarde de bases de données</h3>
+          <p data-i18n="svc3.d">Mise en place de sauvegardes automatiques et fiables de vos bases de données pour ne plus jamais perdre vos informations critiques.</p>
         </article>
 
         <article class="card">
           <div class="card-icon">🔄</div>
-          <h3>Récupération de données</h3>
-          <p>Disque dur endommagé, fichiers supprimés, support illisible ? Nous récupérons vos données précieuses quand c'est techniquement possible.</p>
+          <h3 data-i18n="svc4.t">Récupération de données</h3>
+          <p data-i18n="svc4.d">Disque dur endommagé, fichiers supprimés, support illisible ? Nous récupérons vos données précieuses quand c'est techniquement possible.</p>
         </article>
 
         <article class="card">
           <div class="card-icon">📈</div>
-          <h3>Scaling matériel &amp; logiciel</h3>
-          <p>Votre activité grandit ? Nous faisons évoluer votre infrastructure : mise à niveau du matériel, optimisation et migration de vos logiciels.</p>
+          <h3 data-i18n="svc5.t">Scaling matériel &amp; logiciel</h3>
+          <p data-i18n="svc5.d">Votre activité grandit ? Nous faisons évoluer votre infrastructure : mise à niveau du matériel, optimisation et migration de vos logiciels.</p>
         </article>
 
         <article class="card">
           <div class="card-icon">🗺️</div>
-          <h3>Consulting &amp; roadmap réseau</h3>
-          <p>Audit de l'existant, conseil et mise en place d'une feuille de route pour installer ou améliorer votre réseau informatique d'entreprise.</p>
+          <h3 data-i18n="svc6.t">Consulting &amp; roadmap réseau</h3>
+          <p data-i18n="svc6.d">Audit de l'existant, conseil et mise en place d'une feuille de route pour installer ou améliorer votre réseau informatique d'entreprise.</p>
         </article>
 
         <article class="card">
           <div class="card-icon">📡</div>
-          <h3>Installation réseau &amp; Wi-Fi</h3>
-          <p>Câblage, configuration de routeurs et points d'accès, extension de couverture Wi-Fi et partage d'imprimantes, chez vous ou au bureau.</p>
+          <h3 data-i18n="svc7.t">Installation réseau &amp; Wi-Fi</h3>
+          <p data-i18n="svc7.d">Câblage, configuration de routeurs et points d'accès, extension de couverture Wi-Fi et partage d'imprimantes, chez vous ou au bureau.</p>
         </article>
 
         <article class="card">
           <div class="card-icon">🖥️</div>
-          <h3>Montage &amp; upgrade PC sur mesure</h3>
-          <p>Conseil d'achat, assemblage de PC adaptés à votre budget et à votre usage, et mise à niveau de votre machine existante (RAM, SSD, carte graphique).</p>
+          <h3 data-i18n="svc8.t">Montage &amp; upgrade PC sur mesure</h3>
+          <p data-i18n="svc8.d">Conseil d'achat, assemblage de PC adaptés à votre budget et à votre usage, et mise à niveau de votre machine existante (RAM, SSD, carte graphique).</p>
         </article>
 
         <article class="card">
           <div class="card-icon">🔐</div>
-          <h3>Sécurité informatique</h3>
-          <p>Installation d'antivirus et de pare-feu, nettoyage de logiciels malveillants, bonnes pratiques et protection de vos postes et de vos comptes.</p>
+          <h3 data-i18n="svc9.t">Sécurité informatique</h3>
+          <p data-i18n="svc9.d">Installation d'antivirus et de pare-feu, nettoyage de logiciels malveillants, bonnes pratiques et protection de vos postes et de vos comptes.</p>
         </article>
 
       </div>
@@ -129,44 +130,44 @@
   <section class="section section-alt" id="zone">
     <div class="container zone-inner">
       <div>
-        <h2 class="section-title">Zone d'intervention</h2>
-        <p class="section-sub">Nous intervenons à domicile et en entreprise dans toute la région de Chlef.</p>
+        <h2 class="section-title" data-i18n="zone.title">Zone d'intervention</h2>
+        <p class="section-sub" data-i18n="zone.sub">Nous intervenons à domicile et en entreprise dans toute la région de Chlef.</p>
         <ul class="zone-list">
-          <li>📍 Chlef centre</li>
-          <li>📍 Ouled Fares, Chettia, Oum Drou</li>
-          <li>📍 Boukadir, Oued Sly, Chorfa</li>
-          <li>📍 Ténès et communes environnantes</li>
+          <li data-i18n="zone.l1">📍 Chlef centre</li>
+          <li data-i18n="zone.l2">📍 Ouled Fares, Chettia, Oum Drou</li>
+          <li data-i18n="zone.l3">📍 Boukadir, Oued Sly, Chorfa</li>
+          <li data-i18n="zone.l4">📍 Ténès et communes environnantes</li>
         </ul>
-        <p class="zone-note">Votre commune n'est pas dans la liste ? <a href="#contact">Contactez-nous</a>, nous trouverons une solution.</p>
+        <p class="zone-note" data-i18n="zone.note">Votre commune n'est pas dans la liste ? <a href="#contact">Contactez-nous</a>, nous trouverons une solution.</p>
       </div>
-      <div class="zone-map">🗺️<span>Wilaya de Chlef</span></div>
+      <div class="zone-map">🗺️<span data-i18n="zone.map">Wilaya de Chlef</span></div>
     </div>
   </section>
 
   <!-- ===== Process ===== -->
   <section class="section" id="process">
     <div class="container">
-      <h2 class="section-title">Comment ça marche&nbsp;?</h2>
+      <h2 class="section-title" data-i18n="process.title">Comment ça marche&nbsp;?</h2>
       <div class="steps">
         <div class="step">
           <span class="step-num">1</span>
-          <h3>Vous nous contactez</h3>
-          <p>Par téléphone, WhatsApp ou e-mail. Décrivez votre problème ou votre besoin.</p>
+          <h3 data-i18n="step1.t">Vous nous contactez</h3>
+          <p data-i18n="step1.d">Par téléphone, WhatsApp ou e-mail. Décrivez votre problème ou votre besoin.</p>
         </div>
         <div class="step">
           <span class="step-num">2</span>
-          <h3>Diagnostic &amp; devis gratuit</h3>
-          <p>Nous évaluons la situation et vous proposons un devis clair, sans engagement.</p>
+          <h3 data-i18n="step2.t">Diagnostic &amp; devis gratuit</h3>
+          <p data-i18n="step2.d">Nous évaluons la situation et vous proposons un devis clair, sans engagement.</p>
         </div>
         <div class="step">
           <span class="step-num">3</span>
-          <h3>Intervention</h3>
-          <p>Nous intervenons chez vous ou dans vos locaux, rapidement et proprement.</p>
+          <h3 data-i18n="step3.t">Intervention</h3>
+          <p data-i18n="step3.d">Nous intervenons chez vous ou dans vos locaux, rapidement et proprement.</p>
         </div>
         <div class="step">
           <span class="step-num">4</span>
-          <h3>Suivi</h3>
-          <p>Conseils, garantie d'intervention et possibilité de contrat de maintenance.</p>
+          <h3 data-i18n="step4.t">Suivi</h3>
+          <p data-i18n="step4.d">Conseils, garantie d'intervention et possibilité de contrat de maintenance.</p>
         </div>
       </div>
     </div>
@@ -176,44 +177,50 @@
   <section class="section section-alt" id="contact">
     <div class="container contact-inner">
       <div>
-        <h2 class="section-title">Contactez-nous</h2>
-        <p class="section-sub">Devis gratuit — réponse rapide.</p>
+        <h2 class="section-title" data-i18n="contact.title">Contactez-nous</h2>
+        <p class="section-sub" data-i18n="contact.sub">Devis gratuit — réponse rapide.</p>
         <ul class="contact-list">
           <li>📞 <a href="tel:+213793979381">07 93 97 93 81</a></li>
           <li>💬 <a href="https://wa.me/213793979381" target="_blank" rel="noopener">WhatsApp : 07 93 97 93 81</a></li>
           <li>✉️ <a href="mailto:amtechdzofficial@gmail.com">amtechdzofficial@gmail.com</a></li>
-          <li>📍 Chlef, Algérie</li>
-          <li>🕘 Samedi – Jeudi : 8h – 18h</li>
+          <li data-i18n="contact.loc">📍 Chlef, Algérie</li>
+          <li data-i18n="contact.hours">🕘 Samedi – Jeudi : 8h – 18h</li>
         </ul>
       </div>
-      <form class="contact-form" action="mailto:amtechdzofficial@gmail.com" method="post" enctype="text/plain">
+
+      <!-- Formulaire connecté via Formspree.
+           ➜ Remplacez VOTRE_ID_FORMSPREE par l'identifiant obtenu sur https://formspree.io
+           (ex: action="https://formspree.io/f/abcdwxyz"). Tant qu'il n'est pas
+           remplacé, le formulaire bascule automatiquement sur l'e-mail. -->
+      <form class="contact-form" id="contactForm" action="https://formspree.io/f/VOTRE_ID_FORMSPREE" method="POST">
         <label>
-          Nom complet
-          <input type="text" name="nom" placeholder="Votre nom" required>
+          <span data-i18n="form.name">Nom complet</span>
+          <input type="text" name="nom" data-i18n-ph="form.name.ph" placeholder="Votre nom" required>
         </label>
         <label>
-          Téléphone
-          <input type="tel" name="telephone" placeholder="0X XX XX XX XX" required>
+          <span data-i18n="form.phone">Téléphone</span>
+          <input type="tel" name="telephone" data-i18n-ph="form.phone.ph" placeholder="07 XX XX XX XX" required>
         </label>
         <label>
-          Service souhaité
+          <span data-i18n="form.service">Service souhaité</span>
           <select name="service">
-            <option>Dépannage à domicile</option>
-            <option>Maintenance préventive (entreprise)</option>
-            <option>Sauvegarde de bases de données</option>
-            <option>Récupération de données</option>
-            <option>Scaling matériel / logiciel</option>
-            <option>Consulting &amp; réseau</option>
-            <option>Installation réseau / Wi-Fi</option>
-            <option>Montage / upgrade PC</option>
-            <option>Sécurité informatique</option>
+            <option data-i18n="opt1">Dépannage à domicile</option>
+            <option data-i18n="opt2">Maintenance préventive (entreprise)</option>
+            <option data-i18n="opt3">Sauvegarde de bases de données</option>
+            <option data-i18n="opt4">Récupération de données</option>
+            <option data-i18n="opt5">Scaling matériel / logiciel</option>
+            <option data-i18n="opt6">Consulting &amp; réseau</option>
+            <option data-i18n="opt7">Installation réseau / Wi-Fi</option>
+            <option data-i18n="opt8">Montage / upgrade PC</option>
+            <option data-i18n="opt9">Sécurité informatique</option>
           </select>
         </label>
         <label>
-          Message
-          <textarea name="message" rows="4" placeholder="Décrivez votre besoin..." required></textarea>
+          <span data-i18n="form.message">Message</span>
+          <textarea name="message" rows="4" data-i18n-ph="form.message.ph" placeholder="Décrivez votre besoin..." required></textarea>
         </label>
-        <button type="submit" class="btn btn-primary">Envoyer la demande</button>
+        <button type="submit" class="btn btn-primary" data-i18n="form.submit">Envoyer la demande</button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
       </form>
     </div>
   </section>
@@ -221,17 +228,18 @@
   <!-- ===== Footer ===== -->
   <footer class="footer">
     <div class="container footer-inner">
-      <p><strong>AMtechDZ</strong> — Consulting &amp; maintenance informatique à domicile, Chlef.</p>
-      <p>© <span id="year"></span> AMtechDZ. Tous droits réservés.</p>
+      <p data-i18n="footer.tag"><strong>AMtechDZ</strong> — Consulting &amp; maintenance informatique à domicile, Chlef.</p>
+      <p>© <span id="year"></span> AMtechDZ. <span data-i18n="footer.rights">Tous droits réservés.</span></p>
     </div>
   </footer>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    const toggle = document.getElementById('navToggle');
-    const nav = document.getElementById('nav');
-    toggle.addEventListener('click', () => nav.classList.toggle('open'));
-    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
-  </script>
+  <!-- ===== Bouton WhatsApp flottant ===== -->
+  <a class="whatsapp-float" href="https://wa.me/213793979381" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg viewBox="0 0 32 32" width="30" height="30" fill="currentColor" aria-hidden="true">
+      <path d="M16.04 3C9.4 3 4 8.4 4 15.04c0 2.13.56 4.18 1.62 6L4 29l8.13-1.58a12 12 0 0 0 3.9.65h.01C22.68 28.07 28 22.67 28 16.03 28 8.4 22.6 3 16.04 3zm0 21.9h-.01a9.9 9.9 0 0 1-3.49-.64l-.25-.1-4.82.94.97-4.7-.16-.26a9.87 9.87 0 0 1-1.5-5.05c0-5.5 4.5-9.97 10.02-9.97 2.67 0 5.18 1.04 7.07 2.93a9.9 9.9 0 0 1 2.93 7.05c0 5.5-4.5 9.97-10.03 9.97zm5.5-7.45c-.3-.15-1.78-.88-2.06-.98-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.67-2.08-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.5l-.57-.02c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.78-.73 2.03-1.43.25-.7.25-1.3.17-1.43-.07-.13-.27-.2-.57-.35z"/>
+    </svg>
+  </a>
+
+  <script src="app.js"></script>
 </body>
 </html>
