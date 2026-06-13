@@ -188,11 +188,9 @@
         </ul>
       </div>
 
-      <!-- Formulaire connecté via Formspree.
-           ➜ Remplacez VOTRE_ID_FORMSPREE par l'identifiant obtenu sur https://formspree.io
-           (ex: action="https://formspree.io/f/abcdwxyz"). Tant qu'il n'est pas
-           remplacé, le formulaire bascule automatiquement sur l'e-mail. -->
-      <form class="contact-form" id="contactForm" action="https://formspree.io/f/VOTRE_ID_FORMSPREE" method="POST">
+      <!-- Formulaire connecté via Formspree (envoi AJAX géré dans app.js). -->
+      <form class="contact-form" id="contactForm" action="https://formspree.io/f/xqeogdqr" method="POST">
+        <input type="hidden" name="_subject" value="Nouvelle demande depuis le site AMtechDZ">
         <label>
           <span data-i18n="form.name">Nom complet</span>
           <input type="text" name="nom" data-i18n-ph="form.name.ph" placeholder="Votre nom" required>

@@ -241,13 +241,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const t = translations[lang];
       const action = form.getAttribute("action") || "";
 
-      // Si l'endpoint Formspree n'est pas encore configuré, on bascule sur mailto
-      if (action.includes("VOTRE_ID_FORMSPREE")) {
-        window.location.href =
-          "mailto:amtechdzofficial@gmail.com?subject=Demande%20depuis%20le%20site";
-        return;
-      }
-
       status.textContent = t["form.sending"];
       status.className = "form-status sending";
       try {
