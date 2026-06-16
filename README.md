@@ -19,7 +19,25 @@ Site web vitrine de **AMtechDZ**, société de consulting et maintenance informa
 - `index.html` — page principale (bilingue FR / AR)
 - `style.css` — styles du site (avec support RTL pour l'arabe)
 - `app.js` — bascule de langue, formulaire et interactions
+- `assets/` — logo et favicon (voir ci-dessous)
 - `google-business-profile.md` — kit pour la fiche Google
+- `nom-de-domaine.md` — guide du domaine amtechdz.com
+
+## Logo & identité visuelle
+
+Fichiers dans `assets/` (format SVG, vectoriel, redimensionnable sans perte) :
+
+| Fichier | Usage |
+|---------|-------|
+| `logo-mark.svg` | Icône seule (monogramme « A ») — transparent |
+| `favicon.svg` | Favicon du site (onglet du navigateur) |
+| `logo.svg` | Logo horizontal (icône + texte) pour fonds clairs |
+| `logo-square.svg` | Version carrée 512×512 — **photo de profil Google / réseaux sociaux** |
+
+Couleurs de la marque : turquoise `#2dd4bf` → `#0d9488`, fond sombre `#0b1220`.
+
+> Pour obtenir un PNG (ex. pour Facebook qui n'accepte pas le SVG), ouvrez le SVG
+> dans un navigateur et faites une capture, ou demandez-moi de l'exporter.
 
 Site 100 % statique : aucun build, aucune dépendance.
 
