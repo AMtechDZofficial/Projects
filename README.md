@@ -36,8 +36,18 @@ Fichiers dans `assets/` (format SVG, vectoriel, redimensionnable sans perte) :
 
 Couleurs de la marque : turquoise `#2dd4bf` → `#0d9488`, fond sombre `#0b1220`.
 
-> Pour obtenir un PNG (ex. pour Facebook qui n'accepte pas le SVG), ouvrez le SVG
-> dans un navigateur et faites une capture, ou demandez-moi de l'exporter.
+### Versions PNG (`assets/png/`)
+
+Pour les plateformes qui n'acceptent pas le SVG (Facebook, Instagram, WhatsApp…) :
+
+| Fichier | Dimensions | Usage |
+|---------|-----------|-------|
+| `logo-square-1024.png` | 1024×1024 | Photo de profil (haute résolution) |
+| `logo-square-512.png` | 512×512 | Photo de profil (standard) |
+| `logo-mark-1024.png` | 1024×1024 | Icône seule, fond transparent |
+| `logo-mark-512.png` | 512×512 | Icône seule, fond transparent |
+| `logo-horizontal-transparent.png` | 1040×256 | Logo horizontal, fond transparent |
+| `logo-horizontal-white.png` | 1040×256 | Logo horizontal, fond blanc (documents) |
 
 Site 100 % statique : aucun build, aucune dépendance.
 
