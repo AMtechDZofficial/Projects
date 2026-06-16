@@ -117,7 +117,8 @@ Ajoutez chaque service avec sa description courte :
 
 Les fiches avec photos reçoivent beaucoup plus de clics. Ajoutez :
 
-- **Logo** AMtechDZ (carré, ex. 720×720 px)
+- **Logo** AMtechDZ (carré) — utilisez `assets/logo-square.svg` du dépôt
+  (à exporter en PNG ~720×720 px si Google demande un PNG)
 - **Photo de couverture** (bannière)
 - Vous en intervention (réparation d'un PC, câblage réseau…)
 - Avant / après d'une réparation
